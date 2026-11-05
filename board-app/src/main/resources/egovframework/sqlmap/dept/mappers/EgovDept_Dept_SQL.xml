@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="egovframework.example.dept.service.impl.DeptMapper">
+
+	<resultMap id="dept" type="egovframework.example.dept.service.DeptVO">
+		<result property="deptId" column="DEPT_ID"/>
+		<result property="deptNm" column="DEPT_NM"/>
+		<result property="useYn" column="USE_YN"/>
+	</resultMap>
+
+	<insert id="insertDept" parameterType="deptVO">
+			INSERT INTO DEPT
+				( DEPT_ID, DEPT_NM, USE_YN )
+			VALUES ( #{deptId}, #{deptNm}, #{useYn} )
+	</insert>
+
+	<update id="updateDept">
+			UPDATE DEPT
+			SET DEPT_NM=#{deptNm}, USE_YN=#{useYn}
+			WHERE DEPT_ID=#{deptId}
+	</update>
+
+	<delete id="deleteDept">
+			DELETE FROM DEPT
+			WHERE DEPT_ID=#{deptId}
+	</delete>
+
+	<select id="selectDept" resultMap="dept">
+			SELECT DEPT_ID, DEPT_NM, USE_YN
+			FROM DEPT
+			WHERE DEPT_ID=#{deptId}
+	</select>
+
+	<select id="selectDeptList" parameterType="deptDefaultVO" resultType="egovMap">
+			SELECT t.DEPT_ID, t.DEPT_NM, t.USE_YN
+			FROM DEPT t
+			WHERE 1=1
+			<!--
+				LIKE 검색 portability — CONCAT 3-arg 는 HSQL/MySQL/MariaDB/PostgreSQL/CUBRID/GOLDILOCKS 에서 동작.
+				Oracle/Tibero/Altibase 에서는 CONCAT 가 2-arg only 라 ORA-00909 발생.
+				해당 vendor 로 전환 시: CONCAT('%', #{searchKeyword}, '%')  →  '%' || #{searchKeyword} || '%'
+				(자세한 가이드: docs/dialect-portability.md)
+			-->
+			<if test="searchKeyword != null and searchKeyword != ''">
+		        <choose>
+		            <when test="searchCondition == 0">
+						AND	t.DEPT_NM LIKE CONCAT('%', #{searchKeyword}, '%')
+					</when>
+				</choose>
+			</if>
+			ORDER BY t.DEPT_ID DESC
+			<!--
+				페이징 portability — 기본은 HSQL/MySQL/MariaDB/PostgreSQL/CUBRID/GOLDILOCKS 호환 LIMIT/OFFSET.
+				운영 DB 변경 시 아래 라인을 교체하세요 (자세한 가이드: docs/dialect-portability.md).
+
+				Oracle 12c+ / Tibero 7+ / Altibase 7+:
+				    OFFSET #{firstIndex} ROWS FETCH NEXT #{recordCountPerPage} ROWS ONLY
+				Oracle 11g 이하:
+				    위 SELECT 를 ROWNUM 서브쿼리로 감싸야 함 — 가이드 참고
+			-->
+			LIMIT #{recordCountPerPage} OFFSET #{firstIndex}
+	</select>
+
+	<select id="selectDeptListTotCnt" parameterType="deptDefaultVO" resultType="int">
+			SELECT COUNT(*) totcnt
+			FROM DEPT t
+			WHERE 1=1
+			<if test="searchKeyword != null and searchKeyword != ''">
+		        <choose>
+		            <when test="searchCondition == 0">
+						AND t.DEPT_NM LIKE CONCAT('%', #{searchKeyword}, '%')
+					</when>
+				</choose>
+			</if>
+	</select>
+
+</mapper>

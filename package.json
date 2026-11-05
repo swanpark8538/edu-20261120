@@ -1,0 +1,17 @@
+{
+  "name": "edu-20261120",
+  "private": true,
+  "type": "module",
+  "description": "표준프레임워크 기술 심화교육 · MCP 과목 실습 저장소 (eGovFrame 5.0 Boot 게시판 과제 + 채점기)",
+  "engines": { "node": ">=18" },
+  "scripts": {
+    "setup": "node scripts/setup.mjs",
+    "verify": "node scripts/verify.mjs board-app",
+    "collect": "node scripts/collect.mjs",
+    "reference": "node scripts/make-reference.mjs",
+    "aggregate": "node scripts/aggregate-human.mjs"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.29.0"
+  }
+}

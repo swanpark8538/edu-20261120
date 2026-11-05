@@ -1,0 +1,33 @@
+# ─── AI 대상 테스트 자료 (교육 수강생에게 노출하지 않음) ───
+bench/
+materials/ai-prompt-suffix.md
+results/ai/
+
+# ─── 정답 프로젝트 (진행자 PC 에서만 생성) ───
+reference-solution/
+
+# ─── 내부 설계 메모 ───
+docs/superpowers/
+
+# ─── 로컬 환경 ───
+node_modules/
+.mcp-servers/
+.participant.json
+board-app/target/
+board-app/.mcp.json
+board-app/.claude/
+board-app/.cursor/
+board-app/.cline/
+board-app/.codex/
+board-app/*.log
+board-app/Result_*.csv
+results/human/*/transcripts/
+results/human/*/project/
+
+# ─── OS / 편집기 ───
+.DS_Store
+._*
+Thumbs.db
+.idea/
+.vscode/
+*.swp

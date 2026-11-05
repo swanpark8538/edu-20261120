@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <!-- CSRF meta — AJAX(fetch) 요청 헤더용. Spring Security 미사용 프로젝트에서는 렌더링되지 않는다. -->
+    <meta th:if="${_csrf != null}" name="_csrf" th:content="${_csrf.token}">
+    <meta th:if="${_csrf != null}" name="_csrf_header" th:content="${_csrf.headerName}">
+    <title th:if="${not #strings.isEmpty(deptVO.deptId)}" th:text="|Dept #{button.modify}|"></title>
+    <title th:unless="${not #strings.isEmpty(deptVO.deptId)}" th:text="|Dept #{button.create}|"></title>
+
+	<link rel="stylesheet" type="text/css" th:href="@{/css/component/output.css}">
+	<link rel="stylesheet" type="text/css" th:href="@{/css/egovframe.css}">
+	<script th:inline="javascript" th:src="@{/js/jquery.min.js}"></script>
+	<script th:inline="javascript" th:src="@{/js/component/ui-script.js}" defer></script>
+	<script th:inline="javascript" th:src="@{/js/egovframework/common.js}" defer></script>
+	<script th:inline="javascript" th:src="@{/js/egovframework/EgovValidation.js}" defer></script>
+
+    <script th:inline="javascript" defer>
+        function validateDeptVO(form) {
+            const rules = {
+                deptNm: {
+                    label: [[#{title.dept.deptNm}]],
+                    rules: { required: true, maxlength: 100 }
+                },
+                useYn: {
+                    label: [[#{title.dept.useYn}]],
+                    rules: { required: true, maxlength: 1 }
+                },
+            };
+            return EgovValidation.validateForm(form, rules);
+        }
+
+    	// GET 제출 전에는 CSRF hidden 필드를 disabled 처리한다 — disabled 컨트롤은
+    	// 직렬화되지 않으므로 토큰이 URL 쿼리스트링(브라우저 이력·로그)에 유출되지 않는다.
+    	function deptList() {
+            $('#csrfField').prop('disabled', true);
+            $('#detailForm').attr('method', 'get').attr('action', contextPath + '/egovDeptList.do').submit();
+        }
+
+        function deptAdd() {
+            if (confirm(/*[[#{add.confirm}]]*/ '\uB4F1\uB85D\uD558\uC2DC\uACA0\uC2B5\uB2C8\uAE4C?')) {
+                let frm = document.detailForm;
+                if (!validateDeptVO(frm)) {
+					return;
+				} else {
+					$('#csrfField').prop('disabled', false);
+					$('#detailForm').attr('method', 'post').attr('action', contextPath + '/addDept.do').submit();
+				}
+            }
+        }
+
+        function deptUpdate() {
+            if (confirm(/*[[#{modify.confirm}]]*/ '\uC218\uC815\uD558\uC2DC\uACA0\uC2B5\uB2C8\uAE4C?')) {
+            	let frm = document.detailForm;
+                if (!validateDeptVO(frm)) {
+					return;
+				} else {
+            		$('#csrfField').prop('disabled', false);
+            		$('#detailForm').attr('method', 'post').attr('action', contextPath + '/updateDept.do').submit();
+				}
+			}
+        }
+
+        function deptDelete() {
+            if (confirm(/*[[#{delete.confirm}]]*/ '\uC0AD\uC81C\uD558\uC2DC\uACA0\uC2B5\uB2C8\uAE4C?')) {
+                $('#csrfField').prop('disabled', false);
+                $('#detailForm').attr('method', 'post').attr('action', contextPath + '/deleteDept.do').submit();
+            }
+        }
+
+        function deptReset() {
+            $('form').each(function() {
+                this.reset();
+            });
+        }
+    </script>
+</head>
+
+<body>
+<div id="container" class="inner">
+
+	<h2 class="heading-large">
+	    <span th:if="${not #strings.isEmpty(deptVO.deptId)}" th:text="#{button.modify}"></span>
+	    <span th:unless="${not #strings.isEmpty(deptVO.deptId)}" th:text="#{button.create}"></span>
+	</h2>
+
+	<form id="detailForm" name="detailForm" th:object="${deptVO}">
+	<input type="hidden" th:id="searchCondition" th:name="searchCondition" th:value="${deptVO.searchCondition}" />
+	<input type="hidden" th:id="searchKeyword" th:name="searchKeyword" th:value="${deptVO.searchKeyword}" />
+	<input type="hidden" th:id="pageIndex" th:name="pageIndex" th:value="${deptVO.pageIndex}" />
+	<!-- 등록/수정/삭제가 POST submit 이므로 CSRF 토큰을 함께 전송한다.
+	     GET 제출(목록 복귀) 전에는 스크립트가 disabled 처리해 URL 유출을 막는다. -->
+	<input type="hidden" id="csrfField" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+
+		<div class="conts-wrap">
+	        <div class="fieldset input-form">
+                <!-- idGeneration='auto' — 자동 채번. 수정 진입 시에만 readonly 로 표시. -->
+                <div class="form-group" th:if="${not #strings.isEmpty(deptVO.deptId)}">
+                    <div class="form-tit">
+                        <label for="deptId" th:text="#{title.dept.deptId}"></label>
+                    </div>
+                    <div class="form-conts">
+                        <input type="text" id="deptId" name="deptId" class="krds-input" th:value="${deptVO.deptId}" th:readonly="readonly">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="form-tit">
+                        <label for="deptNm" th:text="#{title.dept.deptNm}"> <span class="required">*</span></label>
+                    </div>
+                    <div class="form-conts">
+                        <input type="text" id="deptNm" name="deptNm" class="krds-input" maxlength="100" th:value="${deptVO.deptNm}" th:placeholder="#{confirm.required.dept.deptNm}">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="form-tit">
+                        <label for="useYn" th:text="#{title.dept.useYn}"></label>
+                    </div>
+                    <div class="form-conts">
+                        <select id="useYn" name="useYn" class="krds-form-select">
+                            <option value="Y" th:selected="${deptVO.useYn == 'Y'}" th:text="#{input.yes}">Yes</option>
+                            <option value="N" th:selected="${deptVO.useYn == 'N'}" th:text="#{input.no}">No</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+	        <div class="page-btn-wrap">
+                <div class="btn-wrap">
+	                <button type="button" class="krds-btn medium secondary" th:text="#{button.list}" th:onclick="deptList()"></button>
+	                <button type="button" class="krds-btn medium tertiary" th:text="#{button.reset}" th:onclick="deptReset()"></button>
+                </div>
+	            <div class="btn-wrap">
+					<button type="button"
+	                        class="krds-btn medium"
+	                        th:text="#{button.modify}"
+	                        th:onclick="deptUpdate()"
+	                        th:if="${not #strings.isEmpty(deptVO.deptId)}"></button>
+	                <button type="button"
+	                        class="krds-btn medium danger"
+	                        th:text="#{button.delete}"
+	                        th:onclick="deptDelete()"
+	                        th:if="${not #strings.isEmpty(deptVO.deptId)}"></button>
+	                <button type="button"
+	                        class="krds-btn medium"
+	                        th:text="#{button.create}"
+	                        th:onclick="deptAdd()"
+	                        th:unless="${not #strings.isEmpty(deptVO.deptId)}"></button>
+	            </div>
+	        </div>
+		</div>
+
+	</form>
+
+</div>
+
+</body>
+</html>
