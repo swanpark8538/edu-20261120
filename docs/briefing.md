@@ -26,9 +26,9 @@ CREATE TABLE BOARD (
 );
 ```
 
-- 패키지 권장: `egovframework.example.board` (`web` / `service` / `service.impl`).
-- 첨부: 폼 파일 필드 `file_1`(multiple), 첨부 그룹 키 `atchFileId`, 파일당 10MB, 실행 파일 차단, 초과·차단 시 안내 화면, 다운로드는 `<a href>` + `Content-Disposition: attachment`.
-- ID: 사용자가 입력하지 않고 서버가 `EgovIdGnrService` 로 채번.
+- 패키지 권장: `egovframework.example.board`.
+- 첨부: 폼 파일 필드 `file_1`(multiple), 첨부 그룹 키 `atchFileId`, 파일당 10MB, 실행 파일 차단, 초과·차단 시 안내 화면.
+- 글 번호: 사용자가 입력하지 않고 서버가 자동으로 부여.
 
 ### URL · 파라미터 계약 (채점기가 그대로 호출)
 
@@ -45,18 +45,9 @@ CREATE TABLE BOARD (
 
 ## 2. "표준프레임워크 방식" 이 무엇을 뜻하는가
 
-채점의 시스템 설정·표준 준수율 항목은 아래를 봅니다. eGovFrame Boot 템플릿 프로젝트와 공통컴포넌트가 쓰는 방식입니다.
+`TASK.md` 는 발주서처럼 **무엇을** 만들지와 화면·요청 계약만 적고, **어떻게** 만들지는 적지 않습니다. 채점의 시스템 설정·보안·표준 준수율 항목은 결과물이 eGovFrame Boot 템플릿 프로젝트와 공통컴포넌트가 쓰는 방식(계층 구조, 자바 설정, 실행환경 공통 기반 서비스, 표준 보안 설정)을 따랐는지를 봅니다. 이 내용은 앞 시간 강의에서 다루며, 항목별 판정 기준은 실습이 끝난 뒤에 공개합니다.
 
-| 요소 | 표준 방식 |
-|---|---|
-| 계층 | `@Controller` → `Service` 인터페이스 → `*ServiceImpl extends EgovAbstractServiceImpl` + `@Service` → `*Mapper` 인터페이스(`@Mapper`) + MyBatis XML → VO |
-| 설정 | XML 대신 `@Configuration` 자바 클래스: DataSource, MyBatis `SqlSessionFactory`, `DataSourceTransactionManager` + `TransactionInterceptor` 포인트컷, 프로퍼티 서비스, MVC(Thymeleaf·메시지 소스·예외 리졸버), Spring Security |
-| ID 생성 | `EgovTableIdGnrServiceImpl`(채번 테이블 `IDS`) + `EgovIdGnrStrategyImpl`(prefix·자릿수) 빈, ServiceImpl 에서 `getNextStringId()` |
-| 트랜잭션 | `TransactionInterceptor` + `execution(* <패키지>..impl.*Impl.*(..))` 포인트컷, 또는 `@Transactional` |
-| 검증 | VO 필드 검증 어노테이션 + 컨트롤러 `@Valid` + `BindingResult` |
-| 예외 | `processException(...)`/`EgovBizException` → `SimpleMappingExceptionResolver` 로 안내 화면 |
-| 페이징 | `PaginationInfo` + VO 의 `pageIndex`/`firstIndex`/`recordCountPerPage` → SQL `LIMIT/OFFSET` |
-| KRDS | KRDS CSS(`krds_tokens.css`, `egovframe.css` 등)와 `krds-` 클래스 |
+실습에서는 평소 일하듯 AI 에게 요구를 전달하고 결과를 확인하면 됩니다. 채점 기준이나 표준 방식 설명을 AI 에게 붙여 넣는 것은 측정 취지에 맞지 않으므로 하지 않습니다.
 
 ## 3. 두 번 실행한다
 
@@ -80,18 +71,20 @@ CREATE TABLE BOARD (
 | `egov_add_entity` | 기존 프로젝트에 엔티티 CRUD 추가 (`withAttachment` 옵션) |
 | `egov_add_query_view` | 조회 전용 화면 추가 |
 
-도구가 만든 코드와 과제 요구사항의 차이(예: 첨부 연결, 포인트컷 범위)는 직접 또는 AI 와 함께 보완합니다.
+도구가 만든 코드와 과제 요구사항의 차이(예: 첨부 연결)는 직접 또는 AI 와 함께 보완합니다.
 
 ## 4. 채점 (`npm run verify -- mcp|nomcp`)
 
-| 구분 | 항목 |
-|---|---|
-| 기본 동작 | B1 빌드, B2 기동+목록 200 |
-| 기본 기능 | F1 등록 → F2 조회 → F3 수정 → F4 삭제 → F5 업로드(2MB) → F6 다운로드 |
-| 사용자 편의 | U1 페이징(12건), U2 검색, U3 KRDS |
-| 시스템 설정 | C1 Config 클래스, C2 트랜잭션, C3 ID 생성, C4 예외/검증 |
-| 보안 | S1 첨부 보안(exe, 11MB), S2 웹 보안(XSS 이스케이프, 토큰 없는 POST 거부, 보안 헤더) |
-| 표준 준수율 | R1 `egovframe-mcp-check` 적용률 100% + Board 계층 파일 3개 이상 |
+18개 항목을 여섯 구분으로 검사합니다. 항목별 판정 기준은 실습 뒤에 공개합니다.
+
+| 구분 | 내용 | 항목 수 |
+|---|---|---|
+| 기본 동작 | 빌드, 기동 | 2 |
+| 기본 기능 | 등록 → 조회 → 수정 → 삭제 → 첨부 업로드 → 다운로드 | 6 |
+| 사용자 편의 | 페이징, 검색, KRDS | 3 |
+| 시스템 설정 | 표준프레임워크 방식의 설정·공통 기반 서비스 적용 | 4 |
+| 보안 | 첨부파일 보안, 웹 보안 | 2 |
+| 표준 준수율 | `egovframe-mcp-check` 적용률 | 1 |
 
 - 2~3분 걸립니다. **시작 직전과 종료 직후는 필수**, 중간은 1회 권장. 실행마다 기록이 남아 시간대별 점수 자료가 됩니다.
 - 프로젝트가 아직 없으면 0점과 시각만 기록합니다 (시작 시각 용도).
@@ -100,7 +93,7 @@ CREATE TABLE BOARD (
 
 ## 5. 하지 말아야 할 것
 
-- 저장소 폴더를 AI 작업 영역으로 여는 것, 채점 스크립트를 AI 에게 보여 주는 것.
+- 저장소 폴더를 AI 작업 영역으로 여는 것, 채점 스크립트·판정 기준·이 문서의 설명을 AI 에게 보여 주는 것.
 - 첫 실행의 코드를 두 번째 실행에 복사하는 것.
 - nomcp 실행에서 MCP 를 켠 채로 작업하는 것 (Codex 는 `npm run mcp -- off`, Cline 은 MCP 화면에서 끄기, Cursor 는 nomcp 폴더를 열고 전역 서버 끄기).
 - 외부 DB 를 요구하는 설정, `Globals.fileStorePath` 를 무시하는 저장 경로.
