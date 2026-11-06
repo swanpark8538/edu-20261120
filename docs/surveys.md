@@ -8,7 +8,7 @@
 2. eGovFrame 실무 경력: ① 없음 ② 1년 미만 ③ 1~3년 ④ 3~5년 ⑤ 5년 이상
 3. Spring Boot 실무 경력: ① 없음 ② 1년 미만 ③ 1~3년 ④ 3년 이상
 4. AI 코딩 도구(Claude Code, Cursor, Copilot 등) 사용 빈도: ① 써 본 적 없음 ② 가끔 ③ 주 1회 이상 ④ 매일
-5. 오늘 사용할 AI 도구: ① Claude Code ② Codex ③ VS Code + Cline(OpenRouter)
+5. 오늘 사용할 AI 도구: ① Claude Code ② Codex ③ Cursor ④ VS Code + Cline(OpenRouter)
 6. 그 도구 사용 경험: ① 없음 ② 몇 번 써 봄 ③ 업무에 사용 중
 7. eGovFrame 공통컴포넌트 첨부파일(`atchFileId`) 기능을 직접 구현하거나 수정해 본 적이 있습니까? ① 예 ② 아니오
 

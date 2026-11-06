@@ -2,6 +2,7 @@
 //
 //   claude : 프로젝트 폴더의 .mcp.json 으로 연결 → mcp 폴더에만 두면 nomcp 폴더에서는 자동으로 미연결
 //   codex  : ~/.codex/config.toml 전역 설정 → nomcp 실행 전에 제거하고 mcp 실행 전에 추가해야 한다 (npm run mcp -- on|off)
+//   cursor : 프로젝트 폴더의 .cursor/mcp.json 으로 연결 → mcp 폴더에만 둔다 (전역 ~/.cursor/mcp.json 에 개인 서버가 있으면 꺼야 함)
 //   cline  : VS Code 전역 cline_mcp_settings.json → MCP Servers 화면에서 켜고 꺼야 한다
 import { spawnSync } from "node:child_process";
 import path from "node:path";
@@ -18,6 +19,10 @@ export function mcpConfigForTool(tool, mcpRunDir, codegenEntry) {
     notes.push(`   Codex 의 MCP 설정은 전역(~/.codex/config.toml)입니다. 실행 전마다 아래 명령으로 켜고 끕니다:`);
     notes.push(`     mcp 실행 직전:   npm run mcp -- on      (codex mcp add ${MCP_SERVER_NAME} -- node ${codegenEntry})`);
     notes.push(`     nomcp 실행 직전: npm run mcp -- off     (codex mcp remove ${MCP_SERVER_NAME})`);
+  } else if (tool === "cursor") {
+    files[path.join(mcpRunDir, ".cursor", "mcp.json")] = JSON.stringify({ mcpServers: { [MCP_SERVER_NAME]: { command: "node", args: [codegenEntry] } } }, null, 2) + "\n";
+    notes.push(`   Cursor 로 mcp 폴더를 열면 .cursor/mcp.json 의 ${MCP_SERVER_NAME} 을 켤지 묻습니다 → Enable. Settings → MCP 에서 초록색·도구 4개 확인.`);
+    notes.push(`   nomcp 폴더에는 설정이 없습니다. 전역(~/.cursor/mcp.json)에 개인 서버가 있으면 실습 동안 끄세요.`);
   } else if (tool === "cline") {
     const settings = {
       darwin: "~/Library/Application Support/Code/User/globalStorage/saoudrizwan.claude-dev/settings/cline_mcp_settings.json",

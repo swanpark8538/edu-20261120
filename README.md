@@ -1,6 +1,6 @@
 # 표준프레임워크 기술 심화교육 · MCP 과목 실습 저장소
 
-AI 코딩 도구(Claude Code · Codex · Cline)로 **전자정부 표준프레임워크(eGovFrame) 5.0 Boot 첨부파일 게시판 프로젝트**를 빈 폴더에서 만드는 실습입니다.
+AI 코딩 도구(Claude Code · Codex · Cursor · Cline)로 **전자정부 표준프레임워크(eGovFrame) 5.0 Boot 첨부파일 게시판 프로젝트**를 빈 폴더에서 만드는 실습입니다.
 수강생 전원이 **코드 생성 MCP 를 연결한 실행(실험군, 20분)** 과 **연결하지 않은 실행(대조군, 30분)** 을 한 번씩 수행하고, 채점기로 진행 상황을 기록한 뒤 결과를 이 저장소에 올립니다.
 
 > **이 저장소는 채점 키트입니다. AI 도구의 작업 영역으로 열지 마세요.**
@@ -27,6 +27,7 @@ AI 코딩 도구는 다음 중 하나를 준비하고, 모델과 노력 수준�
 |---|---|---|
 | Claude Code (권장) | **Opus 5.5 · medium** | [docs/setup-claude-code.md](docs/setup-claude-code.md) |
 | Codex (권장) | **GPT-6.1 Sol · medium** | [docs/setup-codex.md](docs/setup-codex.md) |
+| Cursor | 구독에 따라 **Opus 5.5** 또는 **GPT-6.1 Sol** · medium (두 실행 동일) | [docs/setup-cursor.md](docs/setup-cursor.md) |
 | 상용 AI 를 쓸 수 없는 경우 | VS Code **Cline** + OpenRouter(API Key 는 실습 중 센터 제공) · **GPT-OSS-120B** | [docs/setup-cline.md](docs/setup-cline.md) |
 
 ## 2. 환경 구성 (clone 직후 1회, 교육 전날 권장)
@@ -66,7 +67,7 @@ npm run verify -- mcp
 
 1. **시작 직전** `npm run verify -- <mcp|nomcp>` 를 실행합니다. 프로젝트가 없으므로 0 점이지만 **시작 시각**이 기록됩니다.
 2. AI 도구를 **해당 작업 폴더에서** 실행합니다 (예: `cd ~/egov-mcp-lab/P01/mcp && claude`). `TASK.md` 를 읽고 그 폴더 안에 `board-app/` 프로젝트를 만듭니다.
-   - `mcp` 실행: eGovFrame 코드 생성 MCP(`egovframe-codegen`)가 연결되어 있습니다. Codex·Cline 은 전역 설정이므로 `npm run mcp -- on` / MCP 화면에서 켠 뒤 시작합니다.
+   - `mcp` 실행: eGovFrame 코드 생성 MCP(`egovframe-codegen`)가 연결되어 있습니다. Claude Code·Cursor 는 폴더 설정으로 자동 연결되고, Codex·Cline 은 전역 설정이므로 `npm run mcp -- on` / MCP 화면에서 켠 뒤 시작합니다.
    - `nomcp` 실행: MCP 없이 AI 도구의 기본 기능만 사용합니다. Codex 는 `npm run mcp -- off`, Cline 은 MCP 화면에서 끈 뒤 시작합니다.
 3. **중간에 한 번쯤** `npm run verify -- <실행>` 으로 진척을 확인합니다 (2~3분 걸림. 실행마다 기록이 쌓여 도달 곡선 자료가 됩니다). `-- --static` 을 붙이면 빌드 없이 정적 항목만 빠르게 봅니다.
 4. **종료 선언 직후** 다시 `npm run verify -- <실행>` 을 실행합니다 (종료 시각 기록).
@@ -104,7 +105,7 @@ materials/task-requirements.md   과제 원본 (setup 이 작업 폴더에 TASK.
 materials/board.ddl.sql          과제 DDL
 mcp/                             MCP 서버 번들 (egovframe-mcp-codegen, egovframe-mcp-check)
 scripts/
-  setup.mjs        환경 구성      npm run setup -- --id ID --tool claude|codex|cline [--order ...]
+  setup.mjs        환경 구성      npm run setup -- --id ID --tool claude|codex|cursor|cline [--order ...]
   verify.mjs       채점기         npm run verify -- mcp|nomcp [--static]
   collect.mjs      결과 수집      npm run collect
   mcp-toggle.mjs   전역 MCP 켜기/끄기 (Codex)   npm run mcp -- on|off
@@ -122,4 +123,4 @@ submissions/<ID>/  제출물 (채점 기록, 산출물 사본)
 - **빌드가 느립니다.** 첫 빌드는 의존성을 내려받느라 몇 분 걸립니다. `npm run setup` 이 미리 받아 두므로 당일에는 빠릅니다.
 - **채점기가 "CSRF 토큰을 찾지 못했습니다" 라고 합니다.** 목록 화면에 `_csrf` meta 또는 hidden input 이 없다는 뜻입니다. 토큰이 없으면 모든 POST 가 거부되어 F1 이후가 실패합니다.
 - **R1(표준 준수율)이 "검사 실행 실패"입니다.** `.mcp-servers/egovframe-mcp-check` 가 없거나 이 PC 플랫폼용 번들이 없을 때입니다. `npm run setup` 을 다시 실행하거나 진행자에게 알려 주세요.
-- **mcp 실행인데 MCP 가 연결되지 않습니다.** 도구 문서의 "연결 확인" 절을 보세요. Claude Code 는 `mcp/.mcp.json` 의 경로가 이 PC 의 절대 경로인지 확인합니다.
+- **mcp 실행인데 MCP 가 연결되지 않습니다.** 도구 문서의 "연결 확인" 절을 보세요. Claude Code 는 `mcp/.mcp.json`, Cursor 는 `mcp/.cursor/mcp.json` 의 경로가 이 PC 의 절대 경로인지 확인합니다.

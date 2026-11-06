@@ -5,7 +5,7 @@
 - **설계:** 참가자 내 비교(within-subject). 전원이 **mcp 실행(실험군, 20분)** 과 **nomcp 실행(대조군, 30분)** 을 한 번씩 수행한다. 비교 변수는 codegen MCP 연결 여부 하나.
 - **순서 교차:** 참가자 ID 끝자리 홀수 = mcp-first, 짝수 = nomcp-first (setup 기본값). 두 번째 실행에서 생기는 학습 효과를 상쇄한다. 기록 시트의 `order` 열에 적는다.
 - **고정 요소:** 빈 작업 폴더에서 시작, 같은 `TASK.md`, 같은 도구·모델(한 사람 안에서), 노력 수준 medium, 채점기.
-- **통제하지 못하는 요소:** 도구·모델은 참가자마다 다를 수 있다(Claude Code/Opus 5.5, Codex/GPT-6.1 Sol, Cline/GPT-OSS-120B). 같은 사람의 두 실행을 비교하므로 도구 차이는 비교에서 빠지지만, 도구별 절대 수치 비교는 참고로만 쓴다.
+- **통제하지 못하는 요소:** 도구·모델은 참가자마다 다를 수 있다(Claude Code/Opus 5.5, Codex/GPT-6.1 Sol, Cursor/둘 중 하나, Cline/GPT-OSS-120B). 같은 사람의 두 실행을 비교하므로 도구 차이는 비교에서 빠지지만, 도구별 절대 수치 비교는 참고로만 쓴다.
 - **측정:** 실행별 18개 항목 도달 시각, 최종 점수(구분별), 표준프레임워크 적용률, verify 실행 수, 소스 라인 수, 프롬프트 수(Claude Code 만 자동), 사후 설문. 가중치 점수는 센터가 AI 로 별도 계산한다.
 
 ## D-7 ~ D-1 준비
@@ -38,7 +38,7 @@
 | 1:00~1:05 | 실습 진행 방식 소개 | `docs/briefing.md` 요약. MCP 의 장점은 언급하지 않음 |
 | **1:05** | **첫 실행 시작 선언** | 참가자가 `npm run verify -- <첫 실행>` 실행(시작 기록). 기록 시트 `mcpStart`/`nomcpStart` 에 시각 |
 | 1:05~1:25 (mcp-first) / 1:05~1:35 (nomcp-first) | 첫 실행 | mcp 20분, nomcp 30분. 순서가 다른 두 그룹이 동시에 진행되므로 종료 시각이 다르다 |
-| 첫 실행 종료 | `npm run verify -- <첫 실행>` (종료 기록) → MCP 전환(Codex `npm run mcp -- on|off`, Cline 토글) → 두 번째 폴더로 이동 | 5분 전환 |
+| 첫 실행 종료 | `npm run verify -- <첫 실행>` (종료 기록) → MCP 전환(Codex `npm run mcp -- on|off`, Cline 토글, Claude Code·Cursor 는 폴더 이동만) → 두 번째 폴더로 이동 | 5분 전환 |
 | 두 번째 실행 | 20분 또는 30분 | 전체 실습 블록은 55분 안에 끝남 |
 | **1:55** | **종료 선언** | `npm run verify -- <두 번째>` → `npm run collect` → 커밋·push |
 | 1:55~2:00 | 제출 확인 | push 실패자는 fork + PR |
@@ -66,7 +66,7 @@
 1. `bash scripts/gather-submissions.sh` → `submissions/<ID>/` 수집
 2. `docs/record-sheet.csv` 채움 (ID, 도구, 모델, 순서, 두 실행 시작 시각, 사전 설문의 경력·숙련도, 메모). 예시 2행은 지운다
 3. `npm run aggregate` → `submissions/report.md` (실행별 요약, 같은 사람의 쌍 비교, 도달 곡선, 순서 효과, 도구별)
-4. 프롬프트 수가 필요하면 참가자에게 `submissions/<ID>/<run>/transcripts/` 를 받아 같은 위치에 둔다 (Claude Code 만 자동 집계)
+4. 프롬프트 수가 필요하면 참가자에게 `submissions/<ID>/<run>/transcripts/` 를 받아 같은 위치에 둔다 (Claude Code 만 자동 집계. Cursor 는 대화 기록을 파일로 모으지 못하므로 참가자가 내보내기로 전달)
 5. 가중치 점수·AI 점검은 `submissions/<ID>/<run>/project/` 와 `final.json` 으로 센터에서 수행
 
 ## 해석할 때 주의할 점

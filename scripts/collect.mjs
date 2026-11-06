@@ -45,7 +45,7 @@ for (const run of runs) {
     fs.cpSync(proj, dest, {
       recursive: true,
       filter: (src) => {
-        if (/[\\/](target|\.git|node_modules|\.claude|\.mcp\.json)$/.test(src)) return false;
+        if (/[\\/](target|\.git|node_modules|\.claude|\.cursor|\.mcp\.json)$/.test(src)) return false;
         if (HEAVY.test(src + path.sep) && fs.statSync(src).isFile()) {
           excluded.push(`${path.relative(proj, src)}\t${fs.statSync(src).size}`);
           return false;
@@ -107,7 +107,9 @@ function copyTranscripts(p, workDir, tdir) {
     const key = workDir.replace(/[^a-zA-Z0-9]/g, "-");
     if (fs.existsSync(root)) for (const d of fs.readdirSync(root)) if (d.startsWith(key)) copyNewer(path.join(root, d), (f) => f.endsWith(".jsonl"));
   } else if (p.tool === "codex") copyNewer(path.join(os.homedir(), ".codex", "sessions"), (f) => f.endsWith(".jsonl") && fs.readFileSync(f, "utf8").includes(workDir));
-  else if (p.tool === "cline") {
+  else if (p.tool === "cursor") {
+    // Cursor 의 대화 기록은 SQLite(state.vscdb) 안에 있어 파일 단위로 복사하지 않는다. 필요하면 진행자가 Cursor 의 내보내기 기능으로 받는다.
+  } else if (p.tool === "cline") {
     const base = { darwin: path.join(os.homedir(), "Library/Application Support/Code/User/globalStorage/saoudrizwan.claude-dev/tasks"), win32: path.join(process.env.APPDATA ?? "", "Code/User/globalStorage/saoudrizwan.claude-dev/tasks"), linux: path.join(os.homedir(), ".config/Code/User/globalStorage/saoudrizwan.claude-dev/tasks") }[process.platform];
     copyNewer(base, (f) => f.endsWith(".json"));
   }

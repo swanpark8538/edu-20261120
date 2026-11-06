@@ -67,7 +67,7 @@ CREATE TABLE BOARD (
 
 - 순서는 참가자마다 다릅니다 (setup 출력 참고). 두 실행은 **서로 다른 폴더**에서 처음부터 다시 만듭니다. 첫 실행의 코드를 두 번째 폴더로 복사하지 않습니다.
 - AI 도구는 반드시 해당 작업 폴더에서 실행합니다. **저장소(edu-20261120) 폴더를 열지 않습니다.** 저장소에는 채점 스크립트와 판정 기준이 있어 AI 가 그것을 읽으면 측정이 무의미해집니다.
-- 도구·모델은 두 실행에서 같아야 합니다: Claude Code → Opus 5.5 medium, Codex → GPT-6.1 Sol medium, Cline(OpenRouter) → GPT-OSS-120B.
+- 도구·모델은 두 실행에서 같아야 합니다: Claude Code → Opus 5.5 medium, Codex → GPT-6.1 Sol medium, Cursor → Opus 5.5 또는 GPT-6.1 Sol medium(하나로 고정), Cline(OpenRouter) → GPT-OSS-120B.
 
 ### mcp 실행에서 쓸 수 있는 도구
 
@@ -102,7 +102,7 @@ CREATE TABLE BOARD (
 
 - 저장소 폴더를 AI 작업 영역으로 여는 것, 채점 스크립트를 AI 에게 보여 주는 것.
 - 첫 실행의 코드를 두 번째 실행에 복사하는 것.
-- nomcp 실행에서 MCP 를 켠 채로 작업하는 것 (Codex 는 `npm run mcp -- off`, Cline 은 MCP 화면에서 끄기).
+- nomcp 실행에서 MCP 를 켠 채로 작업하는 것 (Codex 는 `npm run mcp -- off`, Cline 은 MCP 화면에서 끄기, Cursor 는 nomcp 폴더를 열고 전역 서버 끄기).
 - 외부 DB 를 요구하는 설정, `Globals.fileStorePath` 를 무시하는 저장 경로.
 - 다른 참가자와 대화하거나 화면을 공유하는 것.
 

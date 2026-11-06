@@ -22,6 +22,8 @@ if (p.tool === "codex") {
   console.log(r.ok ? `✅ codex: ${MCP_SERVER_NAME} ${on ? "추가" : "제거"} 완료. codex 를 다시 시작하고 /mcp 로 확인하세요.` : "⚠️  codex 명령 실패. ~/.codex/config.toml 을 직접 편집하세요.");
 } else if (p.tool === "cline") {
   console.log(`Cline 은 MCP Servers 화면에서 ${MCP_SERVER_NAME} 을 ${on ? "켜(disabled: false)" : "끄"}세요. 파일을 직접 고치려면 cline_mcp_settings.json 의 "disabled" 값을 바꿉니다.`);
+} else if (p.tool === "cursor") {
+  console.log(`Cursor 는 mcp 폴더의 .cursor/mcp.json 으로만 연결되므로 켜고 끌 필요가 없습니다. ${on ? "mcp" : "nomcp"} 폴더를 Cursor 로 여세요 (전역 ~/.cursor/mcp.json 의 개인 서버는 Settings → MCP 에서 끕니다).`);
 } else {
   console.log(`Claude Code 는 mcp 폴더의 .mcp.json 으로만 연결되므로 켜고 끌 필요가 없습니다. ${on ? "mcp" : "nomcp"} 폴더에서 claude 를 실행하세요.`);
 }

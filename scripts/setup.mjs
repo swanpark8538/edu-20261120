@@ -4,7 +4,7 @@
 //   npm run setup -- --id P01 --tool claude --order mcp-first
 //
 //   --id        참가자 ID (진행자가 배정). 제출 브랜치 submit/<ID> 와 submissions/<ID>/ 이름이 된다.
-//   --tool      claude | codex | cline   사용할 AI 코딩 도구 (MCP 연결 방식이 도구마다 다르다)
+//   --tool      claude | codex | cursor | cline   사용할 AI 코딩 도구 (MCP 연결 방식이 도구마다 다르다)
 //   --order     mcp-first | nomcp-first  두 실행의 순서 (진행자가 알려 준다. 기본: ID 끝자리가 홀수면 mcp-first)
 //   --workspace 작업 영역 루트 (기본 ~/egov-mcp-lab/<ID>). 저장소 밖이어야 한다.
 //   --skip-warmup   Maven 의존성 미리 받기 생략
@@ -39,8 +39,8 @@ const order = opt("--order", defaultOrder);
 const workspace = path.resolve(opt("--workspace", path.join(DEFAULT_WORKSPACE_ROOT, id ?? "")));
 const skipWarmup = argv.includes("--skip-warmup");
 const noBranch = argv.includes("--no-branch");
-if (!id || !/^[\w-]+$/.test(id) || !["claude", "codex", "cline"].includes(tool) || !["mcp-first", "nomcp-first"].includes(order)) {
-  console.error("usage: npm run setup -- --id <참가자ID> --tool <claude|codex|cline> [--order mcp-first|nomcp-first] [--workspace <dir>] [--skip-warmup] [--no-branch]");
+if (!id || !/^[\w-]+$/.test(id) || !["claude", "codex", "cursor", "cline"].includes(tool) || !["mcp-first", "nomcp-first"].includes(order)) {
+  console.error("usage: npm run setup -- --id <참가자ID> --tool <claude|codex|cursor|cline> [--order mcp-first|nomcp-first] [--workspace <dir>] [--skip-warmup] [--no-branch]");
   process.exit(1);
 }
 if (workspace.startsWith(KIT_DIR + path.sep) || workspace === KIT_DIR) {
@@ -98,6 +98,7 @@ step("AI 도구 MCP 연결 설정");
 const cfg = mcpConfigForTool(tool, path.join(workspace, "mcp"), codegenEntry());
 fs.rmSync(path.join(workspace, "nomcp", ".mcp.json"), { force: true });
 fs.rmSync(path.join(workspace, "nomcp", ".claude"), { recursive: true, force: true });
+fs.rmSync(path.join(workspace, "nomcp", ".cursor"), { recursive: true, force: true });
 for (const [file, content] of Object.entries(cfg.files)) {
   fs.mkdirSync(path.dirname(file), { recursive: true });
   fs.writeFileSync(file, content);
