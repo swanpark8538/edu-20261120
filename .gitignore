@@ -13,16 +13,8 @@ docs/superpowers/
 node_modules/
 .mcp-servers/
 .participant.json
-board-app/target/
-board-app/.mcp.json
-board-app/.claude/
-board-app/.cursor/
-board-app/.cline/
-board-app/.codex/
-board-app/*.log
-board-app/Result_*.csv
-results/human/*/transcripts/
-results/human/*/project/
+submissions/*/*/transcripts/
+submissions/report.md
 
 # ─── OS / 편집기 ───
 .DS_Store

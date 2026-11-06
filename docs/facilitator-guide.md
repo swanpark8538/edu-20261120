@@ -1,76 +1,78 @@
-# 진행자 가이드 (사람 대상 테스트, 총 60분)
+# 진행자 가이드
 
 ## 실험 설계 요약
 
-- **비교 변수:** codegen MCP 연결 여부 하나 (A 그룹 = 연결, B 그룹 = 미연결).
-- **고정 요소:** 기반 프로젝트 `board-app`, 과제 `TASK.md`, 노력 수준 medium, 제한 시간 40분, 채점기.
-- **통제하지 못하는 요소:** AI 도구·모델은 참가자가 가진 것에 따라 다릅니다 (Claude Code/Opus 5.5, Codex/GPT-6.1 Sol, Cline/GPT-OSS-120B). 기록 시트에 도구·모델을 적고, 짝을 지을 때 **같은 도구끼리** 묶어 A/B 로 나눕니다. 도구별 비교는 참고 자료로만 씁니다.
-- **배정:** 사전 설문(경력·AI 숙련도)과 도구가 비슷한 참가자끼리 짝을 짓고, 짝 안에서 A/B 를 무작위로 배정합니다.
-- **측정:** 16개 마일스톤 도달 시각, 최종 점수(구분별), 표준프레임워크 적용률, verify 실행 수, 변경 라인 수, 프롬프트 수(Claude Code 만 자동 집계), 사후 설문.
+- **설계:** 참가자 내 비교(within-subject). 전원이 **mcp 실행(실험군, 20분)** 과 **nomcp 실행(대조군, 30분)** 을 한 번씩 수행한다. 비교 변수는 codegen MCP 연결 여부 하나.
+- **순서 교차:** 참가자 ID 끝자리 홀수 = mcp-first, 짝수 = nomcp-first (setup 기본값). 두 번째 실행에서 생기는 학습 효과를 상쇄한다. 기록 시트의 `order` 열에 적는다.
+- **고정 요소:** 빈 작업 폴더에서 시작, 같은 `TASK.md`, 같은 도구·모델(한 사람 안에서), 노력 수준 medium, 채점기.
+- **통제하지 못하는 요소:** 도구·모델은 참가자마다 다를 수 있다(Claude Code/Opus 5.5, Codex/GPT-6.1 Sol, Cline/GPT-OSS-120B). 같은 사람의 두 실행을 비교하므로 도구 차이는 비교에서 빠지지만, 도구별 절대 수치 비교는 참고로만 쓴다.
+- **측정:** 실행별 18개 항목 도달 시각, 최종 점수(구분별), 표준프레임워크 적용률, verify 실행 수, 소스 라인 수, 프롬프트 수(Claude Code 만 자동), 사후 설문. 가중치 점수는 센터가 AI 로 별도 계산한다.
 
 ## D-7 ~ D-1 준비
 
 진행자 PC 에서:
 
-- [ ] 저장소 clone → `npm install` → `npm run setup -- --id FACIL --group A --tool none --no-branch`
-- [ ] `npm run verify` 가 **1/16** (B1 빌드만 통과) 인지 확인
-- [ ] `npm run reference` → `node scripts/verify.mjs reference-solution --label reference` 가 **15/16** (Q4 만 실패) 인지 확인. 다르면 채점기나 codegen 번들을 먼저 점검
-- [ ] 참가자 ID 목록과 그룹 배정표 준비 (사전 설문을 미리 받을 수 없으면 당일 설명 시간에 받고 짝지음)
-- [ ] OpenRouter API Key 발급 (Cline 사용자 수만큼 한도 설정). 실습 후 폐기 예정임을 안내
-- [ ] 참가자에게 사전 안내 발송: README 의 "사전 준비", `docs/briefing.md`, 각자 도구의 `docs/setup-*.md`
-- [ ] (push 로 제출받을 경우) 참가자를 저장소 collaborator 로 추가. 아니면 fork + PR 방식으로 안내
+- [ ] 저장소 clone → `npm install` → `npm run setup -- --id FACIL --tool claude --no-branch`
+- [ ] `npm run verify -- mcp` 가 **0/18 (프로젝트 없음)** 으로 기록되는지 확인 후 `submissions/FACIL/` 삭제
+- [ ] `npm run reference` → `node scripts/verify.mjs --project reference-solution/board-app --label reference` 가 **15/18** (F5·F6·S1 만 실패) 인지 확인. 다르면 채점기나 codegen 번들을 점검
+- [ ] 참가자 ID 목록 준비 (ID 끝자리로 순서가 정해지므로 홀짝을 고르게 배정)
+- [ ] OpenRouter API Key 발급 (Cline 사용자 수만큼 한도 설정)
+- [ ] 참가자에게 사전 안내 발송: README 의 "사전 준비"·"환경 구성", `docs/briefing.md`, 각자 도구의 `docs/setup-*.md`
+- [ ] (push 로 제출받을 경우) 참가자를 collaborator 로 추가. 아니면 fork + PR 안내
+- [ ] (권장) codegen 에 `egov_scaffold_project` 의 `withAttachment` 옵션을 추가해 번들을 갱신한다. 현재는 빈 폴더에서 도구 호출만으로 첨부가 연결된 Board 가 나오지 않아 실험군이 손으로 보완해야 한다
 
-참가자 PC 마다 (당일 설명 시간 전까지):
+참가자 PC (교육 전날, 참가자 본인):
 
 - [ ] JDK 17, Maven 3.9, Node 22, Git, AI 도구 설치·로그인
-- [ ] `git clone` → `npm install` → `npm run setup -- --id <ID> --group <A|B> --tool <도구>` (Maven 의존성이 내려받히므로 네트워크 필요)
-- [ ] `npm run verify` 1회 → 1/16 확인 → 점검용 기록 삭제: `results/human/<ID>/progress.jsonl`
-- [ ] 모델·노력 수준이 문서와 같은지 확인 (Claude Code `/model`, Codex `/model`, Cline API Configuration)
-- [ ] 개인 설정 제거 확인: 전역 지침 파일, 개인 스킬·플러그인, 사용자 범위 MCP 서버
-- [ ] 그룹 A: 도구에서 `egovframe-codegen` 연결·도구 4개 확인. 그룹 B: 연결된 MCP 없음 확인
+- [ ] `git clone` → `npm install` → `npm run setup -- --id <ID> --tool <도구>` (의존성 다운로드에 네트워크 필요)
+- [ ] `npm run verify -- mcp` 1회 → 0/18 확인 → `submissions/<ID>/` 삭제
+- [ ] 모델·노력 수준 확인, 개인 설정(전역 지침·스킬·플러그인·개인 MCP) 제거
 
-## 당일 진행표
+## 당일 진행표 (2시간 20분)
 
 | 시각 | 진행 | 비고 |
 |---|---|---|
-| 0:00~0:03 | 사전 설문 배포·회수 | 바로 짝짓기·그룹 확정 (PC 는 미리 A/B 로 준비) |
-| 0:03~0:08 | 목적 설명 | 아래 "설명 대본". MCP 의 장점은 언급하지 않음 |
-| 0:08~0:12 | 환경 설명 | `docs/briefing.md` 요약: 프로젝트 구조, Dept 예제, URL 규칙, verify 사용법 |
-| 0:12~0:15 | `TASK.md` 읽기 | 질문은 이 시간에만 |
-| **0:15** | **시작 선언** | `docs/record-sheet.csv` 의 `sessionStart` 에 기록 |
-| 0:15~0:55 | 과제 수행 40분 | 막힌 지점을 관찰해 `stuckNotes` 에 기록 |
-| 0:45 | "10분 남았습니다" | |
-| **0:55** | **종료 선언** | 키보드에서 손을 떼게 한 뒤 `npm run collect` → 출력된 명령으로 커밋·push |
-| 0:55~1:00 | 사후 설문 | collect 가 도는 동안 작성 |
+| 0:00~0:30 | 코드 생성 MCP 소개 | TypeScript MCP, 표준프레임워크 MCP(codegen 중점) |
+| 0:30~0:50 | 환경 구성 확인 | PATH 4종, 도구·모델, mcp 폴더에서 MCP 연결·nomcp 폴더에서 미연결 확인, `npm run verify -- mcp` 가 0/18 로 도는지 |
+| 0:50~1:00 | 휴게 | |
+| 1:00~1:05 | 실습 진행 방식 소개 | `docs/briefing.md` 요약. MCP 의 장점은 언급하지 않음 |
+| **1:05** | **첫 실행 시작 선언** | 참가자가 `npm run verify -- <첫 실행>` 실행(시작 기록). 기록 시트 `mcpStart`/`nomcpStart` 에 시각 |
+| 1:05~1:25 (mcp-first) / 1:05~1:35 (nomcp-first) | 첫 실행 | mcp 20분, nomcp 30분. 순서가 다른 두 그룹이 동시에 진행되므로 종료 시각이 다르다 |
+| 첫 실행 종료 | `npm run verify -- <첫 실행>` (종료 기록) → MCP 전환(Codex `npm run mcp -- on|off`, Cline 토글) → 두 번째 폴더로 이동 | 5분 전환 |
+| 두 번째 실행 | 20분 또는 30분 | 전체 실습 블록은 55분 안에 끝남 |
+| **1:55** | **종료 선언** | `npm run verify -- <두 번째>` → `npm run collect` → 커밋·push |
+| 1:55~2:00 | 제출 확인 | push 실패자는 fork + PR |
+| 2:00~2:20 | 질의응답·설문 | |
+
+> 순서가 다른 두 그룹을 한 방에서 진행하면 종료·전환 시점이 어긋난다. 그룹별로 전환 시각을 화면에 표시하거나, 좌석을 그룹별로 나눈다.
 
 ## 설명 대본 (요지)
 
-1. "오늘은 eGovFrame 개발 환경에 따라 작업 속도와 결과가 어떻게 달라지는지 측정합니다. 개인의 실력을 평가하는 자리가 아닙니다."
-2. "두 가지 환경을 비교합니다. 자리마다 환경이 다르며, 설정 결과는 각자 setup 때 확인했습니다."
-3. "40분 안에 끝내지 못해도 괜찮습니다. 어디까지 진행했는지가 기록됩니다."
-4. "`npm run verify` 를 자주 실행해 주세요. 실행 기록이 측정 자료가 됩니다."
-5. "과제 내용에 관한 질문에는 답하지 않습니다. PC 장애만 알려 주세요."
-
-두 그룹에게 같은 대본을 읽습니다. MCP 가 "더 빠르다"거나 "도움이 된다"는 기대를 주는 표현은 피합니다.
+1. "오늘은 개발 환경에 따라 작업 속도와 결과가 어떻게 달라지는지 측정합니다. 개인 실력 평가가 아닙니다."
+2. "두 번 만듭니다. 한 번은 MCP 가 연결된 폴더에서 20분, 한 번은 연결되지 않은 폴더에서 30분. 순서는 각자 setup 출력에 있습니다."
+3. "끝내지 못해도 괜찮습니다. 어디까지 진행했는지가 기록됩니다. 두 번째 실행에 첫 번째 코드를 복사하지 마세요."
+4. "`npm run verify` 를 시작 직전·종료 직후에 꼭 실행하고, 중간에도 한 번 실행해 주세요."
+5. "AI 도구는 작업 폴더에서만 실행합니다. 저장소 폴더를 열지 마세요."
+6. "과제 내용 질문에는 답하지 않습니다. PC 장애만 알려 주세요."
 
 ## 진행 중 원칙
 
-- 과제 관련 힌트를 주지 않습니다. 참가자와 AI 의 대화에도 개입하지 않습니다.
-- 환경 장애로 멈춘 시간은 `stuckNotes` 에 "장애 n분" 으로 기록합니다. 분석 때 보정하거나 제외합니다.
-- 참가자가 16/16 을 알리면 시각을 기록하고, 남은 시간에 추가 변경은 하지 않게 합니다.
+- 과제 힌트를 주지 않는다. AI 와의 대화에 개입하지 않는다.
+- 환경 장애 시간은 `stuckNotes` 에 "장애 n분" 으로 기록한다. 분석 때 보정하거나 제외한다.
+- 저장소 폴더를 AI 작업 영역으로 연 참가자가 보이면 바로 작업 폴더로 옮기게 하고 `stuckNotes` 에 적는다 (그 실행은 분석에서 제외 후보).
 
 ## 종료 후 수집·집계
 
-1. 참가자가 `submit/<ID>` 브랜치를 push (또는 PR). PR 이면 브랜치를 `origin` 에 그대로 두거나 merge 하지 않고 fetch 합니다.
-2. 진행자 PC 에서 `bash scripts/gather-submissions.sh` → `results/human/<ID>/` 수집 + 변경 규모 재계산
-3. `docs/record-sheet.csv` 를 채움 (ID, 그룹, 도구, 모델, 시작 시각, 사전 설문의 경력·숙련도, 관찰 메모). 예시 2행은 지웁니다
-4. `npm run aggregate` → `results/human/report.md`
-5. 프롬프트 수가 필요하면 참가자에게 `results/human/<ID>/transcripts/` 를 따로 받아 같은 위치에 둡니다 (Claude Code 기록만 자동 집계)
-6. 사후 설문은 별도 표로 정리해 그룹별 중앙값 비교
+1. `bash scripts/gather-submissions.sh` → `submissions/<ID>/` 수집
+2. `docs/record-sheet.csv` 채움 (ID, 도구, 모델, 순서, 두 실행 시작 시각, 사전 설문의 경력·숙련도, 메모). 예시 2행은 지운다
+3. `npm run aggregate` → `submissions/report.md` (실행별 요약, 같은 사람의 쌍 비교, 도달 곡선, 순서 효과, 도구별)
+4. 프롬프트 수가 필요하면 참가자에게 `submissions/<ID>/<run>/transcripts/` 를 받아 같은 위치에 둔다 (Claude Code 만 자동 집계)
+5. 가중치 점수·AI 점검은 `submissions/<ID>/<run>/project/` 와 `final.json` 으로 센터에서 수행
 
 ## 해석할 때 주의할 점
 
-- 참가자가 10명 안팎이면 통계적 유의성을 주장하기 어렵습니다. p 값은 참고로만 쓰고, 효과 크기와 도달 곡선을 중심으로 설명하세요.
-- 마일스톤 도달 시각은 verify 종료 시각 기준이므로 실제보다 2~3분 늦습니다. 두 그룹에 똑같이 적용됩니다.
-- 도구·모델이 섞여 있으므로 A/B 차이에 도구 효과가 섞일 수 있습니다. 같은 도구 짝 안의 차이를 함께 보고하세요.
-- 정답 프로젝트도 Q4(트랜잭션)는 실패합니다. 그룹 A 가 Q4 를 통과했다면 MCP 산출물을 사람이 보완했다는 뜻이므로 따로 세어 보면 좋습니다.
+- 두 실행의 시간이 다르다(20분 vs 30분). 최종 점수 비교와 함께 **같은 시점(20분)의 도달 곡선**을 본다.
+- 순서 효과: `mcp-first` 와 `nomcp-first` 집단의 결과를 나누어 본다. 두 번째 실행은 과제에 익숙해진 상태다.
+- 바닥 효과: nomcp 에서 빌드·기동까지만 도달하는 참가자가 많을 수 있다. 그 자체가 결과이며, 중간 verify 기록이 과정을 보여 준다.
+- 참가자가 10명 안팎이면 통계적 유의성을 주장하기 어렵다. p 값은 참고로만 쓰고 효과 크기·곡선 중심으로 설명한다.
+- verify 종료 시각 기준이라 도달 시각이 2~3분 늦다. 두 실행에 똑같이 적용된다.

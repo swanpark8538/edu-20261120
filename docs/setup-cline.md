@@ -1,12 +1,11 @@
 # VS Code + Cline + OpenRouter 설정
 
-상용 AI 구독(Claude·ChatGPT 등)이 없는 참가자용입니다. 진행자가 **OpenRouter API Key** 를 제공하며, 모델은 **GPT-OSS-120B** 를 사용합니다.
+상용 AI 를 쓸 수 없는 참가자용입니다. **OpenRouter API Key** 는 실습 동안 표준프레임워크 센터가 제공하고 실습 후 폐기합니다. 모델은 **GPT-OSS-120B** 입니다.
 
 ## 설치
 
-1. VS Code 를 설치합니다.
-2. 확장 마켓플레이스에서 **Cline** (saoudrizwan.claude-dev) 을 설치합니다.
-3. VS Code 로 **저장소 루트가 아니라 `board-app/` 폴더**를 엽니다 (Cline 의 작업 디렉터리가 프로젝트 루트가 되도록).
+1. VS Code 와 확장 **Cline**(saoudrizwan.claude-dev)을 설치합니다.
+2. VS Code 로 **작업 폴더**(`~/egov-mcp-lab/<ID>/mcp` 또는 `nomcp`)를 엽니다. 저장소 폴더(edu-20261120)는 열지 않습니다.
 
 ## 모델 설정
 
@@ -15,22 +14,20 @@ Cline 패널 → 설정(⚙) → API Configuration:
 | 항목 | 값 |
 |---|---|
 | API Provider | **OpenRouter** |
-| OpenRouter API Key | 진행자가 배포한 키 (실습 후 진행자가 폐기합니다. 다른 곳에 저장하지 마세요) |
+| OpenRouter API Key | 센터가 배포한 키 (다른 곳에 저장하지 마세요) |
 | Model | `openai/gpt-oss-120b` |
-| Plan / Act 모드 | 둘 다 같은 모델을 사용 |
+| Plan / Act 모드 | 둘 다 같은 모델 |
 
-노력 수준 조절 항목이 보이면 **medium** 으로 둡니다 (없으면 기본값 그대로).
+노력(reasoning) 수준 항목이 보이면 **medium**, 없으면 기본값.
 
-## 개인 설정 끄기 (두 그룹 공통)
+## 개인 설정 끄기
 
 - `.clinerules`, 전역 Custom Instructions 는 실습 동안 비웁니다.
-- 개인적으로 등록한 MCP 서버는 Cline 의 MCP Servers 화면에서 실습 동안 끕니다.
+- 개인적으로 등록한 MCP 서버는 MCP Servers 화면에서 실습 동안 끕니다.
 
-## 그룹 A: codegen MCP 연결
+## MCP 켜기/끄기 (전역 설정이므로 실행마다 전환)
 
-`npm run setup -- --group A --tool cline` 이 붙여 넣을 JSON 과 설정 파일 위치를 출력합니다.
-
-Cline 패널 → **MCP Servers** 아이콘 → **Configure MCP Servers** (파일 `cline_mcp_settings.json` 이 열림) → `mcpServers` 안에 추가:
+`npm run setup -- --tool cline` 이 붙여 넣을 JSON 과 설정 파일 위치를 출력합니다. Cline 패널 → **MCP Servers** → **Configure MCP Servers** (`cline_mcp_settings.json`) 의 `mcpServers` 에 추가합니다.
 
 ```json
 {
@@ -45,16 +42,13 @@ Cline 패널 → **MCP Servers** 아이콘 → **Configure MCP Servers** (파일
 }
 ```
 
-Windows 에서는 경로의 `\` 를 `\\` 로 적습니다 (예: `C:\\edu\\edu-20261120\\.mcp-servers\\...`).
+Windows 에서는 경로의 `\` 를 `\\` 로 적습니다.
 
-연결 확인: MCP Servers 목록에서 `egovframe-codegen` 이 초록색(연결됨)이고 도구 네 개(`egov_scaffold_project`, `egov_add_entity`, `egov_add_query_view`, `egov_add_attach_file_infrastructure`)가 펼쳐지는지 확인합니다.
-
-## 그룹 B
-
-MCP Servers 목록이 비어 있거나 모두 꺼져 있어야 합니다.
+- **mcp 실행 직전**: MCP Servers 화면에서 `egovframe-codegen` 을 켭니다(초록색, 도구 네 개 표시).
+- **nomcp 실행 직전**: 같은 화면에서 끕니다(토글 또는 `"disabled": true`). 목록이 모두 꺼져 있어야 합니다.
 
 ## 작업 방법
 
-- Cline 채팅창에서 자연어로 요청합니다. 파일 편집·명령 실행 승인은 평소대로 합니다.
-- 터미널에서 빌드·실행하거나 Cline 에게 맡겨도 됩니다. 채점은 저장소 루트에서 `npm run verify` (VS Code 통합 터미널에서 `cd ..` 후 실행).
-- 작업 기록은 VS Code 전역 저장소의 Cline `tasks/` 폴더에 남으며, `npm run collect` 가 실습 시작 이후 파일의 사본을 모읍니다.
+- Cline 채팅창에서 `TASK.md` 대로 `board-app/` 을 만들라고 요청합니다. 승인은 평소대로 합니다.
+- 채점은 저장소 루트에서 `npm run verify -- mcp` / `-- nomcp` (별도 터미널).
+- 작업 기록은 VS Code 전역 저장소의 Cline `tasks/` 폴더에 남으며 `npm run collect` 가 실습 시작 이후 파일의 사본을 모읍니다.

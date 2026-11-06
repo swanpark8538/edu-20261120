@@ -1,127 +1,119 @@
 # 실습 전에 알아 두어야 할 것 (사전 안내)
 
-진행자가 설명 시간(약 15분)에 참가자 전원에게 같은 내용으로 전달합니다. 참가자는 이 문서를 실습 전날 읽어 두세요.
-과제 자체(무엇을 어떻게 구현할지)에 관한 질문은 실습 중에 받지 않으므로, 궁금한 점은 이 문서와 `board-app/TASK.md` 에서 미리 확인합니다.
+진행자가 "실습 진행 방식 소개" 시간에 전원에게 같은 내용으로 전달합니다. 참가자는 교육 전날 읽어 두세요.
+과제 자체에 관한 질문은 실습 중에 받지 않으므로, 궁금한 점은 이 문서와 작업 폴더의 `TASK.md` 에서 미리 확인합니다.
 
-## 1. 기반 프로젝트 `board-app` 이 무엇인지
+## 1. 무엇을 만드는가
 
-| 항목 | 내용 |
+**빈 폴더에서** 전자정부 표준프레임워크(eGovFrame) **5.0 Boot** 게시판 프로젝트 `board-app` 을 만듭니다. 기존 코드는 없습니다. 프로젝트 골격, 설정 클래스, 게시판 CRUD, 첨부파일, 페이징·검색, 보안까지 모두 이번 실습에서 만들어야 합니다.
+
+| 항목 | 조건 |
 |---|---|
-| 프레임워크 | 전자정부 표준프레임워크 **5.0 Boot** (`egovframe-boot-starter-parent 5.0.0`), Spring Boot 3 계열, **Java 17**, Jakarta EE |
-| 빌드 | Maven (`mvn package` → `target/board-app-1.0.0.jar`) |
-| 화면 | Thymeleaf + KRDS(정부 디자인 시스템) CSS. 템플릿은 `src/main/resources/templates/thymeleaf/` |
-| DB | 내장 **HSQL** (메모리). 앱 기동 시 `src/main/resources/db/deptdb.sql` 이 실행되어 테이블이 만들어진다. 다른 DB 용 DDL 은 `db/migrations/<dbms>/` |
-| 보안 | Spring Security — **CSRF 보호 켜져 있음**. 모든 POST 에 `_csrf` 토큰 필요. 화면에는 `EgovCsrfControllerAdvice` 가 넣어 주는 `${_csrf}` 를 meta/hidden 으로 출력 |
-| 포트 | 8080 (`application.properties`). 채점기는 별도 포트로 따로 띄우므로 그대로 두어도 된다 |
-| 실행 | `cd board-app && mvn spring-boot:run` 또는 `mvn package && java -jar target/board-app-1.0.0.jar` → `http://localhost:8080/egovDeptList.do` |
+| 스택 | eGovFrame 5.0 Boot (Spring Boot 3, Jakarta), Java 17, Maven, Thymeleaf + **KRDS** |
+| DB | 내장 HSQL(메모리). 기동 시 테이블 자동 생성 (시드 SQL) |
+| 보안 | Spring Security, CSRF 보호 켜짐, 보안 응답 헤더 |
+| 실행 | `java -jar target/*.jar --server.port=… --Globals.fileStorePath=…` 로 기동되어야 함 |
 
-## 2. 이미 구현된 예제 엔티티: Dept (부서)
-
-과제의 Board 는 **Dept 와 같은 방식**으로 만들면 됩니다. Dept 가 곧 "이 프로젝트의 표준 구현 예시"입니다.
-
-### DDL (`materials/dept.ddl.sql`)
+### 과제 엔티티 Board
 
 ```sql
-CREATE TABLE DEPT (
-  DEPT_ID   VARCHAR(20) NOT NULL,
-  DEPT_NM   VARCHAR(100) NOT NULL,
-  USE_YN    CHAR(1) NOT NULL,
-  PRIMARY KEY (DEPT_ID)
+CREATE TABLE BOARD (
+  BOARD_ID VARCHAR(20) NOT NULL,
+  TITLE    VARCHAR(200) NOT NULL,
+  CONTENT  VARCHAR(4000),
+  WRITER   VARCHAR(50) NOT NULL,
+  PRIMARY KEY (BOARD_ID)
 );
 ```
 
-ID 채번용 테이블 `IDS(TABLE_NAME, NEXT_ID)` 도 시드 SQL 에 함께 있습니다 (`INSERT INTO IDS VALUES('DEPT', 1)`).
+- 패키지 권장: `egovframework.example.board` (`web` / `service` / `service.impl`).
+- 첨부: 폼 파일 필드 `file_1`(multiple), 첨부 그룹 키 `atchFileId`, 파일당 10MB, 실행 파일 차단, 초과·차단 시 안내 화면, 다운로드는 `<a href>` + `Content-Disposition: attachment`.
+- ID: 사용자가 입력하지 않고 서버가 `EgovIdGnrService` 로 채번.
 
-### 패키지와 파일 (base package `egovframework.example`)
+### URL · 파라미터 계약 (채점기가 그대로 호출)
 
-```
-egovframework.example
-├─ EgovBootApplication.java                 Spring Boot 진입점
-├─ config/                                  @Configuration 자바 설정 (XML 없음)
-│   ├─ EgovConfigDatasource / Mapper / Common / Properties / Web / WebSecurity
-│   ├─ EgovConfigDeptIdGeneration.java      ← 엔티티별 ID 생성기 빈 (prefix "DEPT-", 5자리, IDS 테이블)
-│   ├─ EgovConfigTransaction.java           ← 트랜잭션 포인트컷: execution(* egovframework.example.dept..impl.*Impl.*(..))
-│   ├─ EgovConfigAspect.java                ← 예외 전환 AOP (egovframework.example..impl.*Impl.*)
-│   └─ EgovConfigValidation.java            ← Bean Validation + 메시지 소스
-├─ dept/
-│   ├─ web/EgovDeptController.java          @Controller, URL 매핑
-│   ├─ service/EgovDeptService.java         서비스 인터페이스
-│   ├─ service/DeptVO.java                  VO (+ @EgovNullCheck 검증 어노테이션)
-│   ├─ service/DeptDefaultVO.java           검색·페이징 공통 필드 (searchCondition, searchKeyword, pageIndex, pageUnit, firstIndex, recordCountPerPage …)
-│   └─ service/impl/EgovDeptServiceImpl.java  @Service("deptService"), extends EgovAbstractServiceImpl
-│       service/impl/DeptMapper.java          @Mapper("deptMapper") MyBatis 매퍼 인터페이스
-├─ cmm/                                     공통 (CSRF 거부 컨트롤러 등)
-├─ exception/                               EgovAopExceptionTransfer, 예외 핸들러
-└─ pagination/                              KRDS 페이징 렌더러
-
-src/main/resources
-├─ application.properties, application-hsql.properties
-├─ db/deptdb.sql                            HSQL 시드 (테이블 + IDS 초기값)
-├─ egovframework/sqlmap/dept/mappers/EgovDept_Dept_SQL.xml   MyBatis SQL (LIKE 검색, LIMIT/OFFSET 페이징)
-├─ egovframework/message/message-common.properties / _ko / _en   메시지 번들 3종
-└─ templates/thymeleaf/dept/egovDeptList.html, egovDeptRegister.html, _fragments/nav.html
-```
-
-### URL 규칙 (Dept 기준 — Board 도 같은 규칙)
-
-| 기능 | Dept | Board (과제) |
+| 기능 | 요청 | 파라미터 |
 |---|---|---|
-| 목록 | `GET /egovDeptList.do` | `GET /egovBoardList.do` |
-| 등록 화면 | `POST /addDeptView.do` | `POST /addBoardView.do` |
-| 등록 처리 | `POST /addDept.do` | `POST /addBoard.do` (multipart) |
-| 수정 화면 | `POST /updateDeptView.do` (`deptId`) | `POST /updateBoardView.do` (`boardId`) |
-| 수정 처리 | `POST /updateDept.do` | `POST /updateBoard.do` (multipart) |
-| 삭제 | `POST /deleteDept.do` (`deptId`) | `POST /deleteBoard.do` (`boardId`) |
-| 목록 파라미터 | `pageIndex`, `searchCondition`(0=이름), `searchKeyword` | 같음 (searchCondition 0/1/2 = 제목/내용/작성자 권장) |
-| 다국어 전환 | `?language=en` | 같음 |
+| 목록 | `GET /egovBoardList.do` | `pageIndex`, `searchCondition`(0 제목/1 내용/2 작성자), `searchKeyword` |
+| 등록 화면 | `POST /addBoardView.do` | |
+| 등록 처리 | `POST /addBoard.do` (multipart) | `title`, `content`, `writer`, `file_1` |
+| 수정 화면 | `POST /updateBoardView.do` | `boardId` |
+| 수정 처리 | `POST /updateBoard.do` (multipart) | `boardId`, `title`, `content`, `writer`, `atchFileId`, `file_1` |
+| 삭제 | `POST /deleteBoard.do` | `boardId` |
 
-### Dept 에서 눈여겨볼 "표준" 요소
+모든 POST 에 `_csrf` 토큰이 필요하며, 목록 화면에 토큰이 meta 또는 hidden 으로 들어 있어야 채점기가 읽을 수 있습니다.
 
-- **계층**: Controller → Service(인터페이스) → ServiceImpl(`EgovAbstractServiceImpl` 상속) → Mapper(`@Mapper`). 표준 준수 검사(S1)는 이 네 가지 패턴을 봅니다.
-- **ID 생성**: `EgovIdGnrService.getNextStringId()` 를 ServiceImpl 에서 호출. 생성기 빈은 `config/EgovConfig<Entity>IdGeneration.java`.
-- **트랜잭션**: `EgovConfigTransaction` 의 `txAdvisor` 포인트컷이 `egovframework.example.dept..impl.*Impl.*` 로 **Dept 패키지에 한정**되어 있습니다. 새 엔티티를 추가하면 범위를 넓히거나 포인트컷을 추가해야 합니다.
-- **검증**: VO 필드의 `@EgovNullCheck(message="{confirm.required.dept.deptNm}")` + 컨트롤러 `@Valid` + `BindingResult`.
-- **다국어**: 화면 문자열은 `#{title.dept.deptNm}` 식 메시지 키. 키는 번들 3종(`message-common.properties`, `_ko`, `_en`)에 모두 추가.
-- **예외**: `processException("info.nodata.msg")` → `EgovBizException` → `EgovConfigWeb` 의 `SimpleMappingExceptionResolver` 가 안내 화면(`dept/egovSampleError`)으로 처리.
-- **페이징**: `PaginationInfo` + `DeptDefaultVO` 의 `firstIndex`/`recordCountPerPage` → SQL `LIMIT #{recordCountPerPage} OFFSET #{firstIndex}`. 페이지 크기는 `EgovConfigProperties` 의 `pageUnit=10`.
+## 2. "표준프레임워크 방식" 이 무엇을 뜻하는가
 
-## 3. 과제 엔티티: Board (게시판)
+채점의 시스템 설정·표준 준수율 항목은 아래를 봅니다. eGovFrame Boot 템플릿 프로젝트와 공통컴포넌트가 쓰는 방식입니다.
 
-- **DDL**: `materials/board.ddl.sql` (BOARD_ID VARCHAR(20) PK, TITLE, CONTENT, WRITER). 첨부 연결용 컬럼·테이블은 자유롭게 추가.
-- **패키지**: `egovframework.example.board` 권장 (web / service / service.impl).
-- **첨부파일**: 등록·수정 폼의 파일 필드 이름은 `file_1`(multiple), 첨부 그룹 키는 `atchFileId`. 파일당 10MB, exe 등 실행 파일 차단, 초과·차단 시 **안내 화면**(5xx 금지). 다운로드는 `<a href>` 링크, 응답 헤더 `Content-Disposition: attachment`.
-- **ID**: 사용자가 입력하지 않고 서버가 채번 (등록 화면에 ID 입력란 없음).
-- 나머지 인수 조건은 `board-app/TASK.md` 의 표를 그대로 지켜야 채점기가 인식합니다.
+| 요소 | 표준 방식 |
+|---|---|
+| 계층 | `@Controller` → `Service` 인터페이스 → `*ServiceImpl extends EgovAbstractServiceImpl` + `@Service` → `*Mapper` 인터페이스(`@Mapper`) + MyBatis XML → VO |
+| 설정 | XML 대신 `@Configuration` 자바 클래스: DataSource, MyBatis `SqlSessionFactory`, `DataSourceTransactionManager` + `TransactionInterceptor` 포인트컷, 프로퍼티 서비스, MVC(Thymeleaf·메시지 소스·예외 리졸버), Spring Security |
+| ID 생성 | `EgovTableIdGnrServiceImpl`(채번 테이블 `IDS`) + `EgovIdGnrStrategyImpl`(prefix·자릿수) 빈, ServiceImpl 에서 `getNextStringId()` |
+| 트랜잭션 | `TransactionInterceptor` + `execution(* <패키지>..impl.*Impl.*(..))` 포인트컷, 또는 `@Transactional` |
+| 검증 | VO 필드 검증 어노테이션 + 컨트롤러 `@Valid` + `BindingResult` |
+| 예외 | `processException(...)`/`EgovBizException` → `SimpleMappingExceptionResolver` 로 안내 화면 |
+| 페이징 | `PaginationInfo` + VO 의 `pageIndex`/`firstIndex`/`recordCountPerPage` → SQL `LIMIT/OFFSET` |
+| KRDS | KRDS CSS(`krds_tokens.css`, `egovframe.css` 등)와 `krds-` 클래스 |
 
-## 4. 채점 (`npm run verify`)
+## 3. 두 번 실행한다
 
-| 구분 | 항목 | 비고 |
-|---|---|---|
-| 기본 | B1 빌드, B2 기동 | 실패하면 이후 기능 항목은 모두 건너뜀 |
-| 기능 | F1 등록 → F2 조회 → F3 수정 → F4 삭제 → F5 업로드(2MB) → F6 다운로드 → F7 업로드 보안(exe, 11MB) | 앞 단계가 실패하면 뒤는 건너뜀 |
-| 품질 | Q1 Config 클래스, Q2 페이징(12건), Q3 검색, Q4 트랜잭션, Q5 ID 생성, Q6 예외/검증/i18n | 정적 분석 + HTTP 검사 |
-| 표준 준수 | S1 표준프레임워크 적용률 | `egovframe-mcp-check` 가 Controller/ServiceImpl/Mapper 패턴을 검사. 100% + Board 계층 파일 3개 이상 |
+| 실행 | 조건 | 시간 | 작업 폴더 |
+|---|---|---|---|
+| **mcp** (실험군) | eGovFrame 코드 생성 MCP `egovframe-codegen` 연결 | 20분 | `~/egov-mcp-lab/<ID>/mcp/` |
+| **nomcp** (대조군) | MCP 없음, AI 도구 기본 기능만 | 30분 | `~/egov-mcp-lab/<ID>/nomcp/` |
 
-자세한 판정 기준은 [milestones.md](milestones.md). 채점에 2~3분 걸리며, **실행할 때마다 기록이 남아 도달 곡선 자료가 됩니다.** 단계를 끝냈다고 생각할 때마다 실행하세요.
+- 순서는 참가자마다 다릅니다 (setup 출력 참고). 두 실행은 **서로 다른 폴더**에서 처음부터 다시 만듭니다. 첫 실행의 코드를 두 번째 폴더로 복사하지 않습니다.
+- AI 도구는 반드시 해당 작업 폴더에서 실행합니다. **저장소(edu-20261120) 폴더를 열지 않습니다.** 저장소에는 채점 스크립트와 판정 기준이 있어 AI 가 그것을 읽으면 측정이 무의미해집니다.
+- 도구·모델은 두 실행에서 같아야 합니다: Claude Code → Opus 5.5 medium, Codex → GPT-6.1 Sol medium, Cline(OpenRouter) → GPT-OSS-120B.
 
-## 5. AI 도구와 MCP
+### mcp 실행에서 쓸 수 있는 도구
 
-- 도구·모델은 참가자가 가진 것에 따라 다르지만 **노력 수준은 모두 medium** 으로 맞춥니다: Claude Code → Opus 5.5, Codex → GPT-6.1 Sol, Cline(OpenRouter) → GPT-OSS-120B.
-- **그룹 A** 는 `egovframe-codegen` MCP 가 연결되어 있습니다. 이 서버는 네 개의 도구를 제공합니다: `egov_scaffold_project`(새 프로젝트), `egov_add_entity`(기존 프로젝트에 엔티티 CRUD 추가, `withAttachment` 옵션), `egov_add_query_view`(조회 화면), `egov_add_attach_file_infrastructure`(첨부파일 인프라 설치). AI 에게 자연어로 요청하면 필요한 도구를 골라 호출합니다. 도구 호출 전에 권한을 물으면 허용하세요.
-- **그룹 B** 는 MCP 없이 AI 도구의 기본 기능(파일 읽기·편집, 명령 실행)만 사용합니다.
-- 두 그룹 모두 개인 설정(전역 CLAUDE.md, 개인 스킬·플러그인, 개인적으로 등록한 MCP 서버)은 실습 동안 끕니다.
+`egovframe-codegen` 서버는 네 개의 도구를 제공합니다. AI 에게 자연어로 요청하면 필요한 도구를 골라 호출합니다. 도구 호출 권한을 물으면 허용하세요.
 
-## 6. 하지 말아야 할 것
+| 도구 | 용도 |
+|---|---|
+| `egov_scaffold_project` | DDL 로 eGovFrame 5.0 Boot 프로젝트 전체 골격 + 엔티티 CRUD 생성 (설정 클래스·KRDS 포함) |
+| `egov_add_attach_file_infrastructure` | 기존 프로젝트에 표준 첨부파일 인프라(테이블·서비스·다운로드·보안 정책) 설치 |
+| `egov_add_entity` | 기존 프로젝트에 엔티티 CRUD 추가 (`withAttachment` 옵션) |
+| `egov_add_query_view` | 조회 전용 화면 추가 |
 
-- Dept 기능·파일을 삭제하거나 깨뜨리는 것 (채점기가 CSRF 토큰을 Dept 화면에서 빌릴 수 있습니다).
-- `server.port`, `spring.profiles.active`(hsql), CSRF 설정을 바꾸는 것.
-- `board-app/` 밖(스크립트, 설정)을 수정하는 것.
+도구가 만든 코드와 과제 요구사항의 차이(예: 첨부 연결, 포인트컷 범위)는 직접 또는 AI 와 함께 보완합니다.
+
+## 4. 채점 (`npm run verify -- mcp|nomcp`)
+
+| 구분 | 항목 |
+|---|---|
+| 기본 동작 | B1 빌드, B2 기동+목록 200 |
+| 기본 기능 | F1 등록 → F2 조회 → F3 수정 → F4 삭제 → F5 업로드(2MB) → F6 다운로드 |
+| 사용자 편의 | U1 페이징(12건), U2 검색, U3 KRDS |
+| 시스템 설정 | C1 Config 클래스, C2 트랜잭션, C3 ID 생성, C4 예외/검증 |
+| 보안 | S1 첨부 보안(exe, 11MB), S2 웹 보안(XSS 이스케이프, 토큰 없는 POST 거부, 보안 헤더) |
+| 표준 준수율 | R1 `egovframe-mcp-check` 적용률 100% + Board 계층 파일 3개 이상 |
+
+- 2~3분 걸립니다. **시작 직전과 종료 직후는 필수**, 중간은 1회 권장. 실행마다 기록이 남아 시간대별 점수 자료가 됩니다.
+- 프로젝트가 아직 없으면 0점과 시각만 기록합니다 (시작 시각 용도).
+- 채점기는 프로젝트를 임시 폴더에 복사해 빌드·기동하므로 띄워 둔 앱과 충돌하지 않습니다.
+- 가중치를 적용한 최종 점수는 센터가 별도로 계산합니다.
+
+## 5. 하지 말아야 할 것
+
+- 저장소 폴더를 AI 작업 영역으로 여는 것, 채점 스크립트를 AI 에게 보여 주는 것.
+- 첫 실행의 코드를 두 번째 실행에 복사하는 것.
+- nomcp 실행에서 MCP 를 켠 채로 작업하는 것 (Codex 는 `npm run mcp -- off`, Cline 은 MCP 화면에서 끄기).
+- 외부 DB 를 요구하는 설정, `Globals.fileStorePath` 를 무시하는 저장 경로.
 - 다른 참가자와 대화하거나 화면을 공유하는 것.
 
-## 7. 시간표
+## 6. 당일 시간표 (총 2시간 20분)
 
 | 시간 | 내용 |
 |---|---|
-| 설명 15분 | 이 문서 요약 + 환경 점검 + TASK.md 읽기 (질문은 이때만) |
-| **40분** | 과제 수행. 10분 남았을 때 안내 |
-| 5분 | `npm run collect` → 커밋·push → 사후 설문 |
+| 30분 | 표준프레임워크 코드 생성 MCP 소개 |
+| 20분 | 환경 구성 확인 (`npm run setup` 결과, 도구·모델, MCP 연결) |
+| 10분 | 휴게 |
+| 5분 | 실습 진행 방식 소개 (이 문서 요약) |
+| 50분 | 실습: 첫 실행 → 폴더·MCP 전환 → 두 번째 실행 (mcp 20분 + nomcp 30분) |
+| 5분 | `npm run collect` → 커밋·push |
+| 20분 | 질의응답, 설문 |

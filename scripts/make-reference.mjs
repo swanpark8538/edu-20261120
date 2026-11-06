@@ -1,13 +1,16 @@
 #!/usr/bin/env node
-// [진행자용] 정답 프로젝트(reference-solution/)를 만든다 — codegen MCP 도구 2회 호출 결과물.
-// 채점기가 어디까지 통과하는지 확인(채점기 자체 검증)하는 데 쓴다. reference-solution/ 은 git 에 올라가지 않는다.
+// [진행자용] codegen 도구만으로 만들 수 있는 참조 프로젝트를 reference-solution/ 에 만든다 (git 제외).
+// 채점기가 어디까지 통과하는지(채점기 자체 검증) 확인하는 데 쓴다.
 //
-//   npm run reference            # 생성
-//   node scripts/verify.mjs reference-solution --label reference
+//   npm run reference            egov_scaffold_project(Board) → egov_add_attach_file_infrastructure
+//   node scripts/verify.mjs --project reference-solution/board-app --label reference
+//
+// 현재 codegen 은 빈 폴더에서 "첨부가 연결된 Board" 를 도구 호출만으로 만들지 못한다 (scaffold 에 withAttachment 없음,
+// 같은 엔티티의 add_entity 는 충돌로 거부). 따라서 이 참조 프로젝트는 F5·F6·S1(첨부) 항목이 실패하는 것이 정상이다.
 import { spawnSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
-import { KIT_DIR, PROJECT_DIR, REFERENCE_DIR, BOARD_PACKAGE, BOARD_ENTITY, codegenEntry } from "../config/kit.config.mjs";
+import { KIT_DIR, REFERENCE_DIR, BOARD_PACKAGE, BOARD_ENTITY, PROJECT_NAME, codegenEntry } from "../config/kit.config.mjs";
 
 const codegen = codegenEntry();
 if (!fs.existsSync(codegen)) {
@@ -15,10 +18,7 @@ if (!fs.existsSync(codegen)) {
   process.exit(1);
 }
 fs.rmSync(REFERENCE_DIR, { recursive: true, force: true });
-fs.cpSync(PROJECT_DIR, REFERENCE_DIR, {
-  recursive: true,
-  filter: (s) => !/[\\/](target|\.claude|\.mcp\.json|TASK\.md)$/.test(s),
-});
+fs.mkdirSync(REFERENCE_DIR, { recursive: true });
 const call = (tool, args) => {
   console.log(`▶ ${tool}`);
   const r = spawnSync(process.execPath, [path.join(KIT_DIR, "scripts", "mcp-call.mjs"), codegen, tool, JSON.stringify(args)], { encoding: "utf8" });
@@ -27,13 +27,13 @@ const call = (tool, args) => {
     process.exit(r.status ?? 1);
   }
 };
-call("egov_add_attach_file_infrastructure", { projectPath: REFERENCE_DIR });
-call("egov_add_entity", {
-  projectPath: REFERENCE_DIR,
+call("egov_scaffold_project", {
+  projectName: PROJECT_NAME,
   packageName: BOARD_PACKAGE,
+  outputPath: REFERENCE_DIR,
   entityName: BOARD_ENTITY,
   ddl: fs.readFileSync(path.join(KIT_DIR, "materials", "board.ddl.sql"), "utf8"),
-  withAttachment: true,
-  autoApplyMenu: true,
+  description: "참조 프로젝트",
 });
-console.log(`\n✅ 정답 프로젝트 생성: ${path.relative(KIT_DIR, REFERENCE_DIR)}\n   검증: node scripts/verify.mjs reference-solution --label reference`);
+call("egov_add_attach_file_infrastructure", { projectPath: path.join(REFERENCE_DIR, PROJECT_NAME) });
+console.log(`\n✅ 참조 프로젝트 생성: ${path.relative(KIT_DIR, path.join(REFERENCE_DIR, PROJECT_NAME))}\n   검증: node scripts/verify.mjs --project reference-solution/${PROJECT_NAME} --label reference`);
