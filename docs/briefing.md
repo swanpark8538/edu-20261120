@@ -5,13 +5,13 @@
 
 ## 1. 무엇을 만드는가
 
-**빈 폴더에서** 전자정부 표준프레임워크(eGovFrame) **5.0 Boot** 게시판 프로젝트 `board-app` 을 만듭니다. 기존 코드는 없습니다. 프로젝트 골격, 설정 클래스, 게시판 CRUD, 첨부파일, 페이징·검색, 보안까지 모두 이번 실습에서 만들어야 합니다.
+**빈 폴더에서** 전자정부 표준프레임워크(eGovFrame) **5.0 Boot** 게시판 프로젝트 `board-app` 을 만듭니다. 기존 코드는 없습니다. 프로젝트 골격, 게시판 CRUD, 첨부파일, 페이징·검색, 보안까지 모두 이번 실습에서 만들어야 합니다.
 
 | 항목 | 조건 |
 |---|---|
 | 스택 | eGovFrame 5.0 Boot (Spring Boot 3, Jakarta), Java 17, Maven, Thymeleaf + **KRDS** |
 | DB | 내장 HSQL(메모리). 기동 시 테이블 자동 생성 (시드 SQL) |
-| 보안 | Spring Security, CSRF 보호 켜짐, 보안 응답 헤더 |
+| 보안 | 공공 웹 보안 점검 기준 충족 |
 | 실행 | `java -jar target/*.jar --server.port=… --Globals.fileStorePath=…` 로 기동되어야 함 |
 
 ### 과제 엔티티 Board
@@ -27,8 +27,7 @@ CREATE TABLE BOARD (
 ```
 
 - 패키지 권장: `egovframework.example.board`.
-- 첨부: 폼 파일 필드 `file_1`(multiple), 첨부 그룹 키 `atchFileId`, 파일당 10MB, 실행 파일 차단, 초과·차단 시 안내 화면.
-- 글 번호: 사용자가 입력하지 않고 서버가 자동으로 부여.
+- 첨부: 폼 파일 필드 `file_1`(multiple), 첨부 그룹 키 `atchFileId`.
 
 ### URL · 파라미터 계약 (채점기가 그대로 호출)
 

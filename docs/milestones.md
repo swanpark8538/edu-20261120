@@ -18,11 +18,11 @@ B1 이 실패하면 동적 항목은 모두 "건너뜀"으로 실패 처리됩�
 
 | ID | 항목 | 판정 |
 |---|---|---|
-| F1 | 등록(C) | `POST /addBoard.do`(multipart: title, content, writer, 빈 file_1) 가 4xx/5xx 가 아니고, 목록의 어떤 `<tr>` 에 그 제목이 있으며 그 행에서 **게시글 ID** 를 뽑을 수 있다 (`onclick="…('ID')"` 인자 → `boardId=ID` 링크 → 첫 `<td>` 순) |
+| F1 | 등록(C) | `POST /addBoard.do`(multipart: title, content, writer, 빈 file_1) 가 4xx/5xx 가 아니고, 목록의 어떤 `<tr>` 에 그 제목이 있으며 그 행에서 **게시글 ID** 를 뽑을 수 있다 (`onclick="…('ID')"` 인자 → `boardId=ID` 링크 → `name="boardId"` hidden 값 → 첫 `<td>` 순) |
 | F2 | 조회(R) | `POST /updateBoardView.do`(boardId) 가 200 이고 본문에 등록한 제목이 있다 |
 | F3 | 수정(U) | `POST /updateBoard.do`(boardId, 바뀐 title, atchFileId 는 수정 화면의 hidden 값) 후 목록에 바뀐 제목이 있다 |
 | F4 | 삭제(D) | `POST /deleteBoard.do`(boardId) 후 목록에서 사라진다 |
-| F5 | 업로드 | 2MB PDF 를 `file_1` 로 첨부해 등록 → 수정 화면에 다운로드 링크(`href` 에 `FileDown`, `atchFileId=` 또는 `download`)가 있다 |
+| F5 | 업로드 | 2MB PDF 를 `file_1` 로 첨부해 등록 → 수정 화면에 다운로드 링크(`href` 에 `FileDown`, `atchFileId=`, `fileSn=`, `download` 또는 `attach`)가 있다 |
 | F6 | 다운로드 | 링크 중 하나를 GET 하면 200, **내용이 업로드한 바이트와 같고**, `Content-Disposition` 에 `attachment` |
 
 ## 사용자 편의

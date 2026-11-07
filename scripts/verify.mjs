@@ -190,6 +190,8 @@ function rowId(row) {
   const m =
     r.match(/on\w+\s*=\s*"[^"]*?\w+\(\s*['"]?([A-Za-z0-9_\-]+)['"]?\s*[,)]/) ??
     r.match(/boardId=([A-Za-z0-9_\-]+)/) ??
+    r.match(/name="boardId"[^>]*value="([A-Za-z0-9_\-]+)"/) ??
+    r.match(/value="([A-Za-z0-9_\-]+)"[^>]*name="boardId"/) ??
     r.match(/<td[^>]*>(?:\s*<[^>]+>)*\s*([A-Za-z0-9_\-]+)\s*</);
   return m?.[1];
 }
@@ -203,7 +205,7 @@ function findDownloadLinks(html) {
   const links = new Set();
   for (const m of html.matchAll(/href="([^"]+)"/g)) {
     const u = decodeHtml(m[1]);
-    if (/FileDown|atchFileId=|download/i.test(u)) links.add(u);
+    if (/FileDown|atchFileId=|fileSn=|download|attach/i.test(u)) links.add(u);
   }
   return [...links];
 }
