@@ -111,6 +111,7 @@ scripts/
   mcp-toggle.mjs   전역 MCP 켜기/끄기 (Codex)   npm run mcp -- on|off
   make-reference.mjs      [진행자] 참조 프로젝트 생성   npm run reference
   aggregate-human.mjs     [진행자] 결과 집계           npm run aggregate
+  dispersion.mjs          [진행자] 산출물 편차 분석    npm run dispersion
   gather-submissions.sh   [진행자] submit/* 브랜치에서 제출물 모으기
 config/            공통 설정 (kit.config.mjs, milestones.mjs)
 docs/              briefing.md(사전 안내) · milestones.md(판정 기준) · setup-*.md(도구별) · facilitator-guide.md · surveys.md · record-sheet.csv

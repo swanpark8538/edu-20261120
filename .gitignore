@@ -15,6 +15,7 @@ node_modules/
 .participant.json
 submissions/*/*/transcripts/
 submissions/report.md
+submissions/dispersion.md
 
 # ─── OS / 편집기 ───
 .DS_Store

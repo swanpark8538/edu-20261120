@@ -11,6 +11,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { KIT_DIR, SUBMISSIONS_DIR, RUNS, RUN_MINUTES } from "../config/kit.config.mjs";
 import { MILESTONES, MILESTONE_IDS, GROUPS } from "../config/milestones.mjs";
+import { median, fmt, wilcoxon } from "./lib/stats.mjs";
 
 const sheetPath = process.argv[2] ?? path.join(KIT_DIR, "docs", "record-sheet.csv");
 const root = process.argv[3] ?? SUBMISSIONS_DIR;
@@ -62,38 +63,6 @@ const data = people.map((p) => {
   const runs = Object.fromEntries(RUNS.map((r) => [r, loadRun({ ...p, aiTool }, r)]));
   return { ...p, aiTool, order, runs };
 });
-
-const median = (xs) => {
-  const a = xs.filter((x) => x != null && !Number.isNaN(x)).sort((p, q) => p - q);
-  if (!a.length) return undefined;
-  const m = Math.floor(a.length / 2);
-  return a.length % 2 ? a[m] : (a[m - 1] + a[m]) / 2;
-};
-const fmt = (x, d = 1) => (x == null || Number.isNaN(x) ? "-" : x.toFixed(d));
-// Wilcoxon 부호 순위 검정 (정규 근사). 쌍 표본이 작으므로 p 는 참고용.
-function wilcoxon(pairs) {
-  const d = pairs.map(([a, b]) => a - b).filter((x) => x !== 0);
-  if (d.length < 2) return undefined;
-  const ranked = d.map((x) => ({ x, r: 0 })).sort((p, q) => Math.abs(p.x) - Math.abs(q.x));
-  for (let i = 0; i < ranked.length; ) {
-    let j = i;
-    while (j + 1 < ranked.length && Math.abs(ranked[j + 1].x) === Math.abs(ranked[i].x)) j++;
-    for (let k = i; k <= j; k++) ranked[k].r = (i + j) / 2 + 1;
-    i = j + 1;
-  }
-  const wPlus = ranked.filter((v) => v.x > 0).reduce((s, v) => s + v.r, 0);
-  const n = d.length;
-  const mu = (n * (n + 1)) / 4;
-  const sigma = Math.sqrt((n * (n + 1) * (2 * n + 1)) / 24);
-  const z = (wPlus - mu) / sigma;
-  const p = 2 * (1 - normCdf(Math.abs(z)));
-  return { n, wPlus, p, positive: d.filter((x) => x > 0).length, negative: d.filter((x) => x < 0).length };
-}
-function normCdf(x) {
-  const t = 1 / (1 + 0.2316419 * x);
-  const dd = 0.3989423 * Math.exp((-x * x) / 2);
-  return 1 - dd * t * (0.3193815 + t * (-0.3565638 + t * (1.781478 + t * (-1.821256 + t * 1.330274))));
-}
 
 const both = data.filter((d) => d.runs.mcp.exists && d.runs.nomcp.exists);
 const L = [];

@@ -12,7 +12,8 @@
     "collect": "node scripts/collect.mjs",
     "mcp": "node scripts/mcp-toggle.mjs",
     "reference": "node scripts/make-reference.mjs",
-    "aggregate": "node scripts/aggregate-human.mjs"
+    "aggregate": "node scripts/aggregate-human.mjs",
+    "dispersion": "node scripts/dispersion.mjs"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.29.0"
