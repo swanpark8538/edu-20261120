@@ -14,8 +14,8 @@
 진행자 PC 에서:
 
 - [ ] 저장소 clone → `npm install` → `npm run setup -- --id FACIL --tool claude --no-branch`
-- [ ] `npm run verify -- mcp` 가 **0/18 (프로젝트 없음)** 으로 기록되는지 확인 후 `submissions/FACIL/` 삭제
-- [ ] `npm run reference` → `node scripts/verify.mjs --project reference-solution/board-app --label reference` 가 **15/18** (F5·F6·S1 만 실패) 인지 확인. 다르면 채점기나 codegen 번들을 점검
+- [ ] `npm run verify -- mcp` 가 **0/19 (프로젝트 없음)** 으로 기록되는지 확인 후 `submissions/FACIL/` 삭제
+- [ ] `npm run reference` → `node scripts/verify.mjs --project reference-solution/board-app --label reference` 가 **16/19** (F5·F6·S1 만 실패) 인지 확인. 다르면 채점기나 codegen 번들을 점검
 - [ ] 참가자 ID 목록 준비 (ID 끝자리로 순서가 정해지므로 홀짝을 고르게 배정)
 - [ ] OpenRouter API Key 발급 (Cline 사용자 수만큼 한도 설정)
 - [ ] 참가자에게 사전 안내 발송: README 의 "사전 준비"·"환경 구성", `docs/briefing.md`, 각자 도구의 `docs/setup-*.md`
@@ -26,7 +26,7 @@
 
 - [ ] JDK 17, Maven 3.9, Node 22, Git, AI 도구 설치·로그인
 - [ ] `git clone` → `npm install` → `npm run setup -- --id <ID> --tool <도구>` (의존성 다운로드에 네트워크 필요)
-- [ ] `npm run verify -- mcp` 1회 → 0/18 확인 → `submissions/<ID>/` 삭제
+- [ ] `npm run verify -- mcp` 1회 → 0/19 확인 → `submissions/<ID>/` 삭제
 - [ ] 모델·노력 수준 확인, 개인 설정(전역 지침·스킬·플러그인·개인 MCP) 제거
 
 ## 당일 진행표 (2시간 20분)
@@ -34,7 +34,7 @@
 | 시각 | 진행 | 비고 |
 |---|---|---|
 | 0:00~0:30 | 코드 생성 MCP 소개 | TypeScript MCP, 표준프레임워크 MCP(codegen 중점) |
-| 0:30~0:50 | 환경 구성 확인 | PATH 4종, 도구·모델, mcp 폴더에서 MCP 연결·nomcp 폴더에서 미연결 확인, `npm run verify -- mcp` 가 0/18 로 도는지 |
+| 0:30~0:50 | 환경 구성 확인 | PATH 4종, 도구·모델, mcp 폴더에서 MCP 연결·nomcp 폴더에서 미연결 확인, `npm run verify -- mcp` 가 0/19 로 도는지 |
 | 0:50~1:00 | 휴게 | |
 | 1:00~1:05 | 실습 진행 방식 소개 | `docs/briefing.md` 요약. MCP 의 장점은 언급하지 않음 |
 | **1:05** | **첫 실행 시작 선언** | 참가자가 `npm run verify -- <첫 실행>` 실행(시작 기록). 기록 시트 `mcpStart`/`nomcpStart` 에 시각 |

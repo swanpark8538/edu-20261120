@@ -1,6 +1,6 @@
 # 채점 항목과 판정 기준
 
-`npm run verify -- <mcp|nomcp>` 는 작업 폴더의 `board-app/` 을 임시 디렉터리에 복사해 **빌드 → 기동 → HTTP 요청 → 소스 정적 분석 → 표준 준수 검사** 순으로 18개 항목을 검사합니다.
+`npm run verify -- <mcp|nomcp>` 는 작업 폴더의 `board-app/` 을 임시 디렉터리에 복사해 **빌드 → 기동 → HTTP 요청 → 소스 정적 분석 → 표준 준수 검사** 순으로 19개 항목을 검사합니다.
 정의는 `config/milestones.mjs`, 구현은 `scripts/verify.mjs` 에 있습니다. 분류는 교육 문서 "생산성 측정" 의 품질 점검 구분을 따릅니다.
 
 `board-app/pom.xml` 이 없으면 모든 항목을 "프로젝트 없음" 으로 0 처리하고 시각만 기록합니다 (실습 시작 시각 기록용).
@@ -42,6 +42,14 @@ B1 이 실패하면 동적 항목은 모두 "건너뜀"으로 실패 처리됩�
 | C3 | ID 생성 | (a) Board 소스에서 `IdGnrService`/`getNextStringId` 사용 (정적), (b) 등록 화면에 hidden/readonly 가 아닌 `name="boardId"` 입력란이 없다, (c) F1 에서 서버가 ID 를 채번했다 |
 | C4 | 예외/검증 | (정적) Board 소스에 검증 어노테이션(`@Valid`/`@NotBlank`/`@EgovNullCheck` 등). (검증) 빈 제목 등록이 5xx 가 아니고 목록의 ID 집합이 늘지 않는다. (예외) 없는 boardId 로 수정 화면 요청 시 본문에 `Whitelabel Error Page` 나 Java 스택트레이스가 없다 (안내 화면이면 500 이어도 통과) |
 
+## 패키지 구성
+
+| ID | 항목 | 판정 |
+|---|---|---|
+| P1 | 도메인별 패키지 분리 | (정적) 루트 = `@SpringBootApplication` 클래스의 패키지. ① Board 계층 클래스(`*Board*Controller/Service/ServiceImpl/Mapper/DAO`)의 공통 상위 패키지가 루트보다 깊어야 한다 (예: `루트.board`). 계층 패키지가 루트 바로 아래(`루트.web`, `루트.service`)면 도메인 패키지가 없는 것으로 본다. ② 첨부 기능 클래스(이름에 `File`/`Atch`/`Attach`/`Upload`/`Download`/`Storage`, `Board*`·`*Config*` 제외)는 Board 도메인 패키지 밖(예: `cmm`, `cmmn.fms`, 별도 도메인 패키지)에 있어야 하고, Board 계층 클래스 안에 파일 저장·다운로드 처리(`transferTo`, `Files.copy`, `Content-Disposition` 등)가 직접 들어 있으면 안 된다. ③ `@Configuration` 클래스는 Board 도메인 패키지 밖(예: `config`)에 있어야 한다. ④ 한 패키지에 `@Controller` 와 `@Service`/`@Repository`/`@Mapper` 구현이 함께 있으면 안 된다. 넷 모두 만족 |
+
+P1 은 파일 이름과 패키지 경로를 보는 휴리스틱이므로 비정형 구조에서는 오판할 수 있습니다. 센터의 AI 점검에서 같은 기준으로 다시 확인합니다.
+
 ## 보안
 
 | ID | 항목 | 판정 |
@@ -67,6 +75,6 @@ B1 이 실패하면 동적 항목은 모두 "건너뜀"으로 실패 처리됩�
 
 | 대상 | 기대 결과 |
 |---|---|
-| 빈 작업 폴더 | 0/18 (프로젝트 없음) |
-| `npm run reference` (scaffold Board → 첨부 인프라 설치, 손 수정 없음) | 첨부가 Board 에 연결되지 않아 F5·F6·S1 실패, 나머지 통과 → **15/18** |
-| 첨부 연결까지 마친 완성 프로젝트 | 18/18 |
+| 빈 작업 폴더 | 0/19 (프로젝트 없음) |
+| `npm run reference` (scaffold Board → 첨부 인프라 설치, 손 수정 없음) | 첨부가 Board 에 연결되지 않아 F5·F6·S1 실패, 나머지 통과 → **16/19** |
+| 첨부 연결까지 마친 완성 프로젝트 | 19/19 |

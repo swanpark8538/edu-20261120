@@ -9,7 +9,7 @@ AI 코딩 도구(Claude Code · Codex · Cursor · Cline)로 **전자정부 표�
 | 구분 | 내용 |
 |---|---|
 | 과제 | 작업 폴더의 `TASK.md` (원본: `materials/task-requirements.md`) — 빈 폴더에 `board-app/` 프로젝트 생성 |
-| 채점 | `npm run verify -- mcp` / `npm run verify -- nomcp` — 18개 항목 ([docs/milestones.md](docs/milestones.md)) |
+| 채점 | `npm run verify -- mcp` / `npm run verify -- nomcp` — 19개 항목 ([docs/milestones.md](docs/milestones.md)) |
 | 제출 | `npm run collect` → `submissions/<ID>/` 를 `submit/<ID>` 브랜치에 커밋 후 push |
 
 ## 1. 사전 준비 (교육 전날까지)
@@ -55,7 +55,7 @@ npm run setup -- --id P01 --tool claude --order mcp-first
 
 Windows 에서는 PowerShell 또는 Git Bash 에서 실행합니다 (`tar` 필요, Windows 10 이상 기본 포함). 다른 위치를 쓰려면 `--workspace <경로>` 를 주되 저장소 밖이어야 합니다.
 
-끝나면 각 실행의 채점을 한 번씩 돌려 "프로젝트 없음" 으로 0/18 이 기록되는지 확인합니다. 이 기록은 점검용이므로 `submissions/P01/` 을 지웁니다.
+끝나면 각 실행의 채점을 한 번씩 돌려 "프로젝트 없음" 으로 0/19 가 기록되는지 확인합니다. 이 기록은 점검용이므로 `submissions/P01/` 을 지웁니다.
 
 ```bash
 npm run verify -- mcp

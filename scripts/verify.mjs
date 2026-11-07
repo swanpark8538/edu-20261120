@@ -273,7 +273,71 @@ function staticChecks(proj) {
   // U3(정적) KRDS 자산
   const krdsFiles = walk(resRoot, (f) => /krds/i.test(path.relative(resRoot, f)));
   const boardLayerFiles = java.filter((f) => /Board\w*(Controller|ServiceImpl|DAO|Mapper)\.java$/.test(f)).map((f) => path.relative(proj, f));
-  return { c1, c2, c3s, c4s, krdsFiles: krdsFiles.length, boardLayerFiles };
+  const p1 = packageLayout(java, configs);
+  return { c1, c2, c3s, c4s, p1, krdsFiles: krdsFiles.length, boardLayerFiles };
+}
+// P1 패키지 구성: Board 도메인 · 첨부 기능 · 설정이 서로 다른 패키지에 있는가 (도메인 단위 패키지 분리)
+//  - 루트 = @SpringBootApplication 클래스의 패키지. 도메인 패키지는 루트보다 깊어야 한다.
+//  - Board 도메인 패키지 = Board 계층 클래스(Controller/Service/ServiceImpl/Mapper/DAO)들의 공통 상위 패키지.
+//    루트와 같으면(계층 패키지가 루트 바로 아래) 도메인 패키지가 없는 것으로 본다.
+//  - 첨부 기능 클래스(이름에 File/Atch/Attach/Upload/Download/Storage, Board* 와 *Config* 제외)는 Board 도메인 패키지 밖에 있어야 하고,
+//    Board 계층 클래스 안에 파일 저장·다운로드 처리(transferTo, Files.copy, Content-Disposition 등)가 직접 들어 있으면 안 된다.
+//  - @Configuration 클래스는 Board 도메인 패키지 밖에 있어야 한다.
+//  - 한 패키지에 @Controller 와 @Service/@Repository/@Mapper 구현이 함께 있으면 계층 분리가 안 된 것으로 본다.
+function packageLayout(java, configs) {
+  const info = java.map((f) => {
+    const src = stripComments(read(f));
+    return { f, name: path.basename(f, ".java"), pkg: src.match(/^\s*package\s+([\w.]+)\s*;/m)?.[1] ?? "", src };
+  });
+  if (!info.length) return { pass: false, detail: "자바 소스가 없음" };
+  const commonPrefix = (pkgs) => {
+    if (!pkgs.length) return "";
+    const segs = pkgs.map((p) => p.split("."));
+    const out = [];
+    for (let i = 0; i < segs[0].length; i++) {
+      if (segs.every((s) => s[i] === segs[0][i])) out.push(segs[0][i]);
+      else break;
+    }
+    return out.join(".");
+  };
+  const under = (pkg, base) => base !== "" && (pkg === base || pkg.startsWith(base + "."));
+  const root = info.find((i) => /@SpringBootApplication\b/.test(i.src))?.pkg ?? commonPrefix(info.map((i) => i.pkg));
+  const rel = (pkg) => (under(pkg, root) ? pkg.slice(root.length).replace(/^\./, "") || "(루트)" : pkg);
+  const problems = [];
+
+  const boardLayer = info.filter((i) => /Board/.test(i.name) && /(Controller|Service|ServiceImpl|Mapper|DAO)$/.test(i.name));
+  const boardPkg = commonPrefix(boardLayer.map((i) => i.pkg));
+  const hasDomainPkg = boardPkg !== "" && boardPkg.split(".").length > root.split(".").length;
+  // Board 도메인으로 간주하는 패키지: 전용 패키지가 있으면 그 하위 전체, 없으면 Board 계층 클래스가 놓인 패키지들. 루트 아래 'board' 세그먼트도 포함.
+  const boardPkgs = hasDomainPkg ? [boardPkg] : [...new Set(boardLayer.map((i) => i.pkg))];
+  const inBoard = (pkg) => boardPkgs.some((b) => under(pkg, b)) || rel(pkg).split(".").some((seg) => /^board/i.test(seg));
+  if (!boardLayer.length) problems.push("Board 계층 클래스(Controller/Service/Mapper)를 찾지 못함");
+  else if (!hasDomainPkg) problems.push(`Board 도메인 전용 패키지가 없음 (계층 패키지가 루트 ${root} 바로 아래: ${[...new Set(boardLayer.map((i) => rel(i.pkg)))].join(", ")})`);
+
+  const attach = info.filter((i) => !/^Board/.test(i.name) && !/Config|Test$/.test(i.name) && /File|Atch|Attach|Upload|Download|Storage/i.test(i.name));
+  const attachInBoard = attach.filter((i) => inBoard(i.pkg));
+  const inlineIo = boardLayer.filter((i) => /\b(transferTo|Files\.(copy|write|createDirectories)|FileOutputStream|FileInputStream|FileSystemResource|Content-Disposition|APPLICATION_OCTET_STREAM)\b/.test(i.src));
+  if (!attach.length && !inlineIo.length) problems.push("첨부 기능 클래스를 찾지 못함 (분리 여부를 판단할 수 없음)");
+  if (attachInBoard.length) problems.push(`첨부 기능 클래스가 Board 도메인 패키지 안에 있음: ${attachInBoard.map((i) => `${rel(i.pkg)}.${i.name}`).join(", ")}`);
+  if (inlineIo.length) problems.push(`첨부 저장·다운로드 처리가 Board 클래스 안에 구현됨: ${inlineIo.map((i) => i.name).join(", ")}`);
+
+  const cfg = info.filter((i) => configs.includes(i.f));
+  const cfgInBoard = cfg.filter((i) => inBoard(i.pkg));
+  if (cfgInBoard.length) problems.push(`설정 클래스가 Board 도메인 패키지 안에 있음: ${cfgInBoard.map((i) => `${rel(i.pkg)}.${i.name}`).join(", ")}`);
+
+  const byPkg = new Map();
+  for (const i of info) {
+    const kind = /@(Controller|RestController)\b/.test(i.src) ? "web" : /@(Service|Repository|Mapper)\b/.test(i.src) ? "svc" : null;
+    if (kind) byPkg.set(i.pkg, new Set([...(byPkg.get(i.pkg) ?? []), kind]));
+  }
+  const mixed = [...byPkg].filter(([, k]) => k.size > 1).map(([p]) => rel(p));
+  if (mixed.length) problems.push(`컨트롤러와 서비스 구현이 같은 패키지에 있음: ${mixed.join(", ")}`);
+
+  const pkgs = (xs) => [...new Set(xs.map((i) => rel(i.pkg)))].join(", ") || "-";
+  return {
+    pass: problems.length === 0,
+    detail: problems.length ? problems.join("; ") : `루트 ${root} · Board ${rel(boardPkg)} · 첨부 ${pkgs(attach)} · 설정 ${pkgs(cfg)}`,
+  };
 }
 function aspectjMatches(expr, target) {
   let re = "";
@@ -564,6 +628,9 @@ async function main() {
   if (s && results.F1.pass) {
     const problems = [];
     try {
+  // ── 패키지 구성 (정적) ─────────────────────────────────────────────
+  record("P1", st.p1.pass, st.p1.detail);
+
       // XSS: 스크립트가 섞인 제목이 목록·수정 화면에서 이스케이프되어야 한다.
       const payload = `<svg/onload=alert(1)>xss-${stamp}`;
       await add(payload);
