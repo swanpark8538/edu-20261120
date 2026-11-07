@@ -196,11 +196,24 @@ function rowId(row) {
   return m?.[1];
 }
 const rows = (html) => html.split(/<tr[\s>]/i).slice(1);
-function findRowId(html, title) {
-  for (const row of rows(html)) if (row.includes(title)) return rowId(row);
+// 화면 전체에서 게시글 ID 로 보이는 값들: 행 패턴 + boardId=… 링크 + hidden boardId. 표가 아닌 화면에서도 동작한다.
+const ID_PATTERNS = [/boardId=([A-Za-z0-9_\-]+)/g, /name="boardId"[^>]*value="([A-Za-z0-9_\-]+)"/g, /value="([A-Za-z0-9_\-]+)"[^>]*name="boardId"/g];
+function allIds(html) {
+  const set = new Set(rows(html).map(rowId).filter(Boolean));
+  const r = decodeHtml(html);
+  for (const re of ID_PATTERNS) for (const m of r.matchAll(re)) set.add(m[1]);
+  return set;
+}
+// 제목이 든 행에서 ID 를 찾고, 없으면 등록 전 화면(before)에 없던 ID 가 하나뿐일 때 그것을 쓴다.
+function findRowId(html, title, before) {
+  if (!html.includes(title)) return undefined;
+  for (const row of rows(html)) if (row.includes(title)) { const id = rowId(row); if (id) return id; }
+  if (before) {
+    const fresh = [...allIds(html)].filter((x) => !before.has(x));
+    if (fresh.length === 1) return fresh[0];
+  }
   return undefined;
 }
-const allRowIds = (html) => new Set(rows(html).map(rowId).filter(Boolean));
 function findDownloadLinks(html) {
   const links = new Set();
   for (const m of html.matchAll(/href="([^"]+)"/g)) {
@@ -424,8 +437,15 @@ async function main() {
     const ok = listRes?.status === 200;
     record("B2", ok, ok ? "" : exited ? `앱이 종료됨\n${tail(appLog)}` : `응답 상태 ${listRes?.status ?? "없음"}`);
     if (ok && !s.takeCsrf(listRes.text)) {
-      const root = await s.get("/");
-      if (!s.takeCsrf(root.text)) console.log("   ⚠️  화면에서 CSRF 토큰(_csrf meta/hidden)을 찾지 못했습니다. POST 요청이 거부될 수 있습니다.");
+      // 목록 화면에 토큰이 없으면 루트 → 등록 화면(GET, 토큰 없는 POST) → XSRF-TOKEN 쿠키 순으로 찾는다.
+      const tries = [() => s.get("/"), () => s.get("/addBoardView.do"), () => s.postMultipart("/addBoardView.do", {}, [], { withCsrf: false })];
+      for (const t of tries) {
+        try {
+          if (s.takeCsrf((await t()).text)) break;
+        } catch {}
+      }
+      if (!s.csrf && s.cookies.get("XSRF-TOKEN")) s.csrf = decodeURIComponent(s.cookies.get("XSRF-TOKEN"));
+      if (!s.csrf) console.log("   ⚠️  목록·등록 화면과 쿠키 어디에서도 CSRF 토큰(_csrf)을 찾지 못했습니다. CSRF 보호가 켜져 있으면 POST 요청이 거부됩니다.");
     }
     if (!ok) s = undefined;
   } else skip("B2", staticOnly ? "--static: 기동 생략" : "B1 실패로 건너뜀");
@@ -445,8 +465,9 @@ async function main() {
     let id;
     let v;
     try {
+      const before = allIds(await list());
       const r = await add(t1);
-      id = findRowId(await list(), t1);
+      id = findRowId(await list(), t1, before);
       record("F1", r.status < 400 && Boolean(id), r.status >= 400 ? `등록 응답 ${r.status}` : id ? "" : "등록 후 목록에서 게시글(ID)을 찾지 못함");
     } catch (e) {
       record("F1", false, `요청 오류: ${e.message}`);
@@ -486,8 +507,9 @@ async function main() {
     const data = randomBytes(2 * MB);
     let links = [];
     try {
+      const before = allIds(await list());
       const r = await add(t, [{ field: "file_1", filename: "verify-2mb.pdf", contentType: "application/pdf", data }]);
-      const id = findRowId(await list(), t);
+      const id = findRowId(await list(), t, before);
       if (r.status >= 400 || !id) record("F5", false, `첨부 등록 실패 (응답 ${r.status}${id ? "" : ", 목록에 없음"})`);
       else {
         links = findDownloadLinks((await updateView(id)).text);
@@ -592,9 +614,9 @@ async function main() {
     if (!st.c4s.pass) problems.push(`[검증] ${st.c4s.detail}`);
     if (s) {
       try {
-        const before = allRowIds(await list());
+        const before = allIds(await list());
         const r = await s.follow(await add("", [emptyFile], { content: `invalid-${stamp}`, writer: "verify" }));
-        const after = allRowIds(await list());
+        const after = allIds(await list());
         if (isServerError(r) || looksLikeCrash(r.text)) problems.push(`[검증] 빈 제목 등록 시 ${r.status} 오류 화면`);
         else if ([...after].some((x) => !before.has(x))) problems.push("[검증] 빈 제목인데 게시글이 등록됨 (@Valid 검증 없음)");
         const bad = await s.follow(await updateView(`NOPE-${stamp}`));
@@ -606,20 +628,24 @@ async function main() {
     record("C4", problems.length === 0, problems.join("; "));
   }
 
+  // ── 패키지 구성 (정적) ─────────────────────────────────────────────
+  record("P1", st.p1.pass, st.p1.detail);
+
   // ── 보안 ──────────────────────────────────────────────────────────
   if (s && results.F5.pass) {
     const problems = [];
     try {
       const te = `verify-exe-${stamp}`;
       const exe = Buffer.concat([Buffer.from("MZ"), randomBytes(1024)]);
+      const beforeExe = allIds(await list());
       const re = await add(te, [{ field: "file_1", filename: "evil.exe", data: exe }]);
       if (isServerError(re)) problems.push(`exe 업로드 시 ${re.status} 오류 화면`);
-      const ide = findRowId(await list(), te);
+      const ide = findRowId(await list(), te, beforeExe);
       if (ide) for (const l of findDownloadLinks((await updateView(ide)).text)) if ((await s.get(l)).buf.equals(exe)) problems.push("exe 파일이 저장되어 다운로드됨");
       const tb = `verify-big-${stamp}`;
       const rb = await add(tb, [{ field: "file_1", filename: "big.pdf", contentType: "application/pdf", data: randomBytes(11 * MB) }]);
       if (isServerError(rb)) problems.push(`10MB 초과 업로드 시 ${rb.status} 오류 화면`);
-      if (findRowId(await list(), tb)) problems.push("10MB 초과 파일의 게시글이 등록됨");
+      if ((await list()).includes(tb)) problems.push("10MB 초과 파일의 게시글이 등록됨");
     } catch (e) {
       problems.push(`요청 오류: ${e.message}`);
     }
@@ -628,22 +654,20 @@ async function main() {
   if (s && results.F1.pass) {
     const problems = [];
     try {
-  // ── 패키지 구성 (정적) ─────────────────────────────────────────────
-  record("P1", st.p1.pass, st.p1.detail);
-
       // XSS: 스크립트가 섞인 제목이 목록·수정 화면에서 이스케이프되어야 한다.
       const payload = `<svg/onload=alert(1)>xss-${stamp}`;
+      const beforeXss = allIds(await list());
       await add(payload);
       const html = await list();
-      const id = findRowId(html, `xss-${stamp}`);
+      const id = findRowId(html, `xss-${stamp}`, beforeXss);
       const raw = (h) => /<svg\/onload=alert\(1\)>/i.test(h);
       if (raw(html)) problems.push("[XSS] 목록 화면에 스크립트 제목이 이스케이프되지 않음");
       if (id && raw((await updateView(id)).text)) problems.push("[XSS] 수정 화면에 스크립트 제목이 이스케이프되지 않음");
       // CSRF: 토큰 없는 POST 는 거부되어야 한다 (게시글이 생기지 않음).
       const tc = `csrf-${stamp}`;
-      const before = allRowIds(await list());
+      const before = allIds(await list());
       const rc = await add(tc, [emptyFile], {}, { withCsrf: false });
-      const after = allRowIds(await list());
+      const after = allIds(await list());
       if ([...after].some((x) => !before.has(x)) || (await list()).includes(tc)) problems.push(`[CSRF] 토큰 없는 등록 요청이 처리됨 (응답 ${rc.status})`);
       // 보안 응답 헤더
       const h = listRes.headers;

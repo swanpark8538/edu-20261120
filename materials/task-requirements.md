@@ -44,7 +44,7 @@ CREATE TABLE BOARD (
 
 | 기능 | 요청 | 파라미터 |
 |---|---|---|
-| 목록 | `GET /egovBoardList.do` | `pageIndex`, `searchCondition`(0 제목 · 1 내용 · 2 작성자), `searchKeyword` (모두 선택) |
+| 목록 | `GET /egovBoardList.do` | `pageIndex`(10건 단위), `searchCondition`(0 제목 · 1 내용 · 2 작성자), `searchKeyword` (모두 선택) |
 | 등록 화면 | `POST /addBoardView.do` | |
 | 등록 처리 | `POST /addBoard.do` (multipart) | `title`, `content`, `writer`, `file_1`(파일, 여러 개 가능) |
 | 수정 화면 | `POST /updateBoardView.do` | `boardId` |
@@ -54,7 +54,5 @@ CREATE TABLE BOARD (
 
 화면 구성은 다음을 따릅니다.
 
-- **목록**: 번호·제목·작성자 열이 있는 표. 한 페이지에 10건씩 보여 주고 페이지를 이동할 수 있음. 검색 조건(제목·내용·작성자)과 검색어 입력, 글 등록 버튼. 행의 글을 선택하면 그 글의 수정 화면으로 이동.
 - **등록**: 제목·내용·작성자 입력과 파일 첨부(여러 개).
 - **수정**: 기존 내용 수정, 첨부 목록과 첨부별 내려받기 링크, 첨부 추가(기존 첨부 묶음 `atchFileId` 유지), 삭제 버튼.
-- **공통**: 화면에서 보내는 POST 요청은 CSRF 토큰 `_csrf` 를 함께 보냄 (meta 태그 또는 hidden 필드로 화면에 포함).

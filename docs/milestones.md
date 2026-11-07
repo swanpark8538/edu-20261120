@@ -10,7 +10,7 @@
 | ID | 항목 | 판정 |
 |---|---|---|
 | B1 | Maven 빌드 | `mvn -q -B -DskipTests package` 가 0 으로 끝나고 `target/*.jar` 가 생김 (8분 제한) |
-| B2 | 기동 + 목록 화면 | `java -jar … --server.port=<임의> --Globals.fileStorePath=<임시>` 로 기동(150초 제한) 후 `GET /egovBoardList.do` 가 200. 이 화면(없으면 `/`)에서 `_csrf` 토큰을 읽음 |
+| B2 | 기동 + 목록 화면 | `java -jar … --server.port=<임의> --Globals.fileStorePath=<임시>` 로 기동(150초 제한) 후 `GET /egovBoardList.do` 가 200. `_csrf` 토큰은 목록 화면의 meta/hidden → `/` → 등록 화면(`GET`/`POST /addBoardView.do`) 응답 → `XSRF-TOKEN` 쿠키 순으로 읽음 |
 
 B1 이 실패하면 동적 항목은 모두 "건너뜀"으로 실패 처리됩니다. 정적 항목(C1·C2·C3 일부·C4 일부·U3 일부·R1)은 빌드와 무관하게 검사합니다.
 
@@ -18,7 +18,7 @@ B1 이 실패하면 동적 항목은 모두 "건너뜀"으로 실패 처리됩�
 
 | ID | 항목 | 판정 |
 |---|---|---|
-| F1 | 등록(C) | `POST /addBoard.do`(multipart: title, content, writer, 빈 file_1) 가 4xx/5xx 가 아니고, 목록의 어떤 `<tr>` 에 그 제목이 있으며 그 행에서 **게시글 ID** 를 뽑을 수 있다 (`onclick="…('ID')"` 인자 → `boardId=ID` 링크 → `name="boardId"` hidden 값 → 첫 `<td>` 순) |
+| F1 | 등록(C) | `POST /addBoard.do`(multipart: title, content, writer, 빈 file_1) 가 4xx/5xx 가 아니고, 목록에 그 제목이 있으며 **게시글 ID** 를 알 수 있다. 제목이 든 `<tr>` 에서 먼저 찾고(`onclick="…('ID')"` 인자 → `boardId=ID` 링크 → `name="boardId"` hidden 값 → 첫 `<td>` 순), 없으면 등록 전후 화면 전체의 ID 집합(`boardId=…`, hidden `boardId`, 행 패턴) 차이에서 새로 생긴 ID 하나를 고른다 |
 | F2 | 조회(R) | `POST /updateBoardView.do`(boardId) 가 200 이고 본문에 등록한 제목이 있다 |
 | F3 | 수정(U) | `POST /updateBoard.do`(boardId, 바뀐 title, atchFileId 는 수정 화면의 hidden 값) 후 목록에 바뀐 제목이 있다 |
 | F4 | 삭제(D) | `POST /deleteBoard.do`(boardId) 후 목록에서 사라진다 |

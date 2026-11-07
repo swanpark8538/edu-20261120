@@ -33,14 +33,13 @@ CREATE TABLE BOARD (
 
 | 기능 | 요청 | 파라미터 |
 |---|---|---|
-| 목록 | `GET /egovBoardList.do` | `pageIndex`, `searchCondition`(0 제목/1 내용/2 작성자), `searchKeyword` |
+| 목록 | `GET /egovBoardList.do` | `pageIndex`(10건 단위), `searchCondition`(0 제목/1 내용/2 작성자), `searchKeyword` |
 | 등록 화면 | `POST /addBoardView.do` | |
 | 등록 처리 | `POST /addBoard.do` (multipart) | `title`, `content`, `writer`, `file_1` |
 | 수정 화면 | `POST /updateBoardView.do` | `boardId` |
 | 수정 처리 | `POST /updateBoard.do` (multipart) | `boardId`, `title`, `content`, `writer`, `atchFileId`, `file_1` |
 | 삭제 | `POST /deleteBoard.do` | `boardId` |
 
-모든 POST 에 `_csrf` 토큰이 필요하며, 목록 화면에 토큰이 meta 또는 hidden 으로 들어 있어야 채점기가 읽을 수 있습니다.
 
 ## 2. "표준프레임워크 방식" 이 무엇을 뜻하는가
 
@@ -81,8 +80,8 @@ CREATE TABLE BOARD (
 | 기본 동작 | 빌드, 기동 | 2 |
 | 기본 기능 | 등록 → 조회 → 수정 → 삭제 → 첨부 업로드 → 다운로드 | 6 |
 | 사용자 편의 | 페이징, 검색, KRDS | 3 |
-| 패키지 구성 | 도메인(Board)·첨부·설정이 패키지로 나뉘어 있는지 | 1 |
 | 시스템 설정 | 표준프레임워크 방식의 설정·공통 기반 서비스 적용 | 4 |
+| 패키지 구성 | 도메인(Board)·첨부·설정이 패키지로 나뉘어 있는지 | 1 |
 | 보안 | 첨부파일 보안, 웹 보안 | 2 |
 | 표준 준수율 | `egovframe-mcp-check` 적용률 | 1 |
 
