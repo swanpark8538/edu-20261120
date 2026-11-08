@@ -20,7 +20,7 @@ import os from "node:os";
 import path from "node:path";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js";
-import { KIT_DIR, MVN, RUNS, checkEntry, readParticipant, projectDir as participantProjectDir, submissionDir } from "../config/kit.config.mjs";
+import { KIT_DIR, MVN, MVN_SPAWN, RUNS, checkEntry, readParticipant, projectDir as participantProjectDir, submissionDir } from "../config/kit.config.mjs";
 import { MILESTONES } from "../config/milestones.mjs";
 
 // ─── 인자 ──────────────────────────────────────────────────────────────
@@ -68,11 +68,13 @@ const record = (id, pass, detail = "") => {
 const skip = (id, why) => record(id, false, why);
 
 // ─── 프로세스·파일 유틸 ────────────────────────────────────────────────
-function runCmd(cmd, args, { cwd, timeoutMs, logPath }) {
+function runCmd(cmd, args, { cwd, timeoutMs, logPath, shell = false }) {
   return new Promise((resolve) => {
     const out = fs.openSync(logPath, "w");
-    const p = spawn(cmd, args, { cwd, stdio: ["ignore", out, out], shell: false });
-    const t = setTimeout(() => p.kill("SIGKILL"), timeoutMs);
+    const p = spawn(cmd, args, { cwd, stdio: ["ignore", out, out], shell });
+    // 셸을 거친 경우(Windows) p 는 cmd.exe 이므로 자식까지 함께 끝낸다.
+    const kill = () => (shell && process.platform === "win32" ? spawn("taskkill", ["/pid", String(p.pid), "/T", "/F"]) : p.kill("SIGKILL"));
+    const t = setTimeout(kill, timeoutMs);
     p.on("close", (code) => {
       clearTimeout(t);
       fs.closeSync(out);
@@ -405,7 +407,7 @@ async function main() {
   let jar;
   if (staticOnly) record("B1", false, "--static: 빌드 생략");
   else {
-    const code = await runCmd(MVN, ["-q", "-B", "-DskipTests", "package"], { cwd: proj, timeoutMs: BUILD_TIMEOUT_MS, logPath: buildLog });
+    const code = await runCmd(MVN, ["-q", "-B", "-DskipTests", "package"], { cwd: proj, timeoutMs: BUILD_TIMEOUT_MS, logPath: buildLog, ...MVN_SPAWN });
     if (code === 0) {
       const t = path.join(proj, "target");
       jar = fs.existsSync(t) ? fs.readdirSync(t).find((f) => f.endsWith(".jar") && !f.endsWith(".original")) : undefined;

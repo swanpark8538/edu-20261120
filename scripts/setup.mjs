@@ -23,7 +23,7 @@ import os from "node:os";
 import path from "node:path";
 import {
   KIT_DIR, MCP_BUNDLE_DIR, MCP_INSTALL_DIR, PARTICIPANT_FILE, TASK_FILE, CODEGEN_BUNDLE, CHECK_BUNDLE_PREFIX,
-  MCP_SERVER_NAME, MVN, DEFAULT_WORKSPACE_ROOT, RUNS, RUN_MINUTES, PROJECT_NAME, platformKey, codegenEntry, checkEntry,
+  MCP_SERVER_NAME, MVN, MVN_SPAWN, DEFAULT_WORKSPACE_ROOT, RUNS, RUN_MINUTES, PROJECT_NAME, platformKey, codegenEntry, checkEntry,
 } from "../config/kit.config.mjs";
 import { mcpConfigForTool } from "./mcp-config.mjs";
 
@@ -54,8 +54,8 @@ const step = (m) => console.log(`\n▶ ${m}`);
 
 // 0) 도구 점검
 step("도구 점검");
-for (const [cmd, args, name] of [["java", ["-version"], "JDK 17"], [MVN, ["-version"], "Maven 3.9"], ["git", ["--version"], "Git"]]) {
-  const r = sh(cmd, args);
+for (const [cmd, args, name, opts] of [["java", ["-version"], "JDK 17"], [MVN, ["-version"], "Maven 3.9", MVN_SPAWN], ["git", ["--version"], "Git"]]) {
+  const r = sh(cmd, args, opts);
   if (r.status === 0) ok(`${name}: ${(r.stdout || r.stderr).split("\n")[0]}`);
   else warn(`${name} 을 찾지 못했습니다 (${cmd}). PATH 를 확인하세요.`);
 }
@@ -138,7 +138,7 @@ else {
   else {
     const r2 = sh(process.execPath, [path.join(KIT_DIR, "scripts", "mcp-call.mjs"), codegenEntry(), "egov_add_attach_file_infrastructure", JSON.stringify({ projectPath: path.join(tmp, "warmup-app") })]);
     if (r2.status !== 0) warn("첨부파일 인프라 의존성은 받지 못했습니다 (계속 진행).");
-    const r3 = sh(MVN, ["-q", "-B", "-DskipTests", "package"], { cwd: path.join(tmp, "warmup-app"), stdio: "inherit" });
+    const r3 = sh(MVN, ["-q", "-B", "-DskipTests", "package"], { cwd: path.join(tmp, "warmup-app"), stdio: "inherit", ...MVN_SPAWN });
     if (r3.status === 0) ok("의존성 다운로드 완료 (~/.m2)");
     else warn("임시 프로젝트 빌드 실패. 네트워크·JDK·Maven 설정을 확인하세요.");
   }

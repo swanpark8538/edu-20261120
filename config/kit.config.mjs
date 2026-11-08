@@ -32,6 +32,9 @@ export const codegenEntry = () =>
 export const checkEntry = () =>
   process.env.CHECK_MCP ?? path.join(MCP_INSTALL_DIR, "egovframe-mcp-check", "package", "build", "index.js");
 export const MVN = process.platform === "win32" ? "mvn.cmd" : "mvn";
+// Node 18.20.2 / 20.12.2 / 21.7.2 이후는 .cmd/.bat 를 shell 없이 spawn 하면 EINVAL 을 던진다 (CVE-2024-27980 대응).
+// Windows 에서 Maven 을 실행할 때는 이 옵션을 spawn 옵션에 펼쳐 넣어 셸을 거친다. 인자에 공백이 없는 경우에만 쓴다.
+export const MVN_SPAWN = { shell: process.platform === "win32" };
 
 export function readParticipant() {
   try {
