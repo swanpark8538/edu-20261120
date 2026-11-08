@@ -1,0 +1,138 @@
+{
+  "label": "P03-mcp-final",
+  "run": "mcp",
+  "project": "/Users/psw/egov-mcp-lab/P03/mcp/board-app",
+  "projectExists": true,
+  "startedAt": "2026-11-08T15:43:07.019Z",
+  "finishedAt": "2026-11-08T15:43:12.804Z",
+  "score": 8,
+  "maxScore": 19,
+  "groups": {
+    "기본 동작": {
+      "pass": 2,
+      "total": 2
+    },
+    "기본 기능": {
+      "pass": 0,
+      "total": 6
+    },
+    "사용자 편의": {
+      "pass": 1,
+      "total": 3
+    },
+    "시스템 설정": {
+      "pass": 3,
+      "total": 4
+    },
+    "패키지 구성": {
+      "pass": 1,
+      "total": 1
+    },
+    "보안": {
+      "pass": 0,
+      "total": 2
+    },
+    "표준 준수율": {
+      "pass": 1,
+      "total": 1
+    }
+  },
+  "complianceRate": 100,
+  "milestones": {
+    "B1": {
+      "pass": true,
+      "detail": "",
+      "at": "2026-11-08T15:43:09.230Z"
+    },
+    "B2": {
+      "pass": true,
+      "detail": "",
+      "at": "2026-11-08T15:43:12.526Z"
+    },
+    "F1": {
+      "pass": false,
+      "detail": "등록 후 목록에서 게시글(ID)을 찾지 못함",
+      "at": "2026-11-08T15:43:12.586Z"
+    },
+    "F2": {
+      "pass": false,
+      "detail": "F1 실패로 건너뜀",
+      "at": "2026-11-08T15:43:12.586Z"
+    },
+    "F3": {
+      "pass": false,
+      "detail": "F2 실패로 건너뜀",
+      "at": "2026-11-08T15:43:12.586Z"
+    },
+    "F4": {
+      "pass": false,
+      "detail": "F3 실패로 건너뜀",
+      "at": "2026-11-08T15:43:12.586Z"
+    },
+    "F5": {
+      "pass": false,
+      "detail": "첨부 등록 실패 (응답 200, 목록에 없음)",
+      "at": "2026-11-08T15:43:12.615Z"
+    },
+    "F6": {
+      "pass": false,
+      "detail": "F5 실패로 건너뜀",
+      "at": "2026-11-08T15:43:12.615Z"
+    },
+    "U1": {
+      "pass": false,
+      "detail": "F1 실패로 건너뜀",
+      "at": "2026-11-08T15:43:12.615Z"
+    },
+    "U2": {
+      "pass": false,
+      "detail": "F1 실패로 건너뜀",
+      "at": "2026-11-08T15:43:12.615Z"
+    },
+    "U3": {
+      "pass": true,
+      "detail": "krds 자산 3개",
+      "at": "2026-11-08T15:43:12.615Z"
+    },
+    "C1": {
+      "pass": true,
+      "detail": "@Configuration 11개 (EgovConfigAspect.java, EgovConfigAttachFile.java, EgovConfigBoardIdGeneration.java, EgovConfigCommon.java, EgovConfigDatasource.java, EgovConfigMapper.java …)",
+      "at": "2026-11-08T15:43:12.615Z"
+    },
+    "C2": {
+      "pass": true,
+      "detail": "EgovConfigTransaction.java 의 포인트컷 egovframework.example.board..impl.*Impl.* 이 EgovBoardServiceImpl.java 을 포함",
+      "at": "2026-11-08T15:43:12.615Z"
+    },
+    "C3": {
+      "pass": false,
+      "detail": "등록(F1)이 실패해 채번 결과를 확인할 수 없음",
+      "at": "2026-11-08T15:43:12.619Z"
+    },
+    "C4": {
+      "pass": true,
+      "detail": "",
+      "at": "2026-11-08T15:43:12.640Z"
+    },
+    "P1": {
+      "pass": true,
+      "detail": "루트 egovframework.example · Board board · 첨부 cmm.service, cmm.service.impl, cmm.web · 설정 config",
+      "at": "2026-11-08T15:43:12.640Z"
+    },
+    "S1": {
+      "pass": false,
+      "detail": "F5 실패로 건너뜀",
+      "at": "2026-11-08T15:43:12.640Z"
+    },
+    "S2": {
+      "pass": false,
+      "detail": "F1 실패로 건너뜀",
+      "at": "2026-11-08T15:43:12.640Z"
+    },
+    "R1": {
+      "pass": true,
+      "detail": "적용률 100% (검사 8개, Board 계층 3개)",
+      "at": "2026-11-08T15:43:12.804Z"
+    }
+  }
+}

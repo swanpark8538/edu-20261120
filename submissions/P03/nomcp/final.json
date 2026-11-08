@@ -1,0 +1,138 @@
+{
+  "label": "P03-nomcp-final",
+  "run": "nomcp",
+  "project": "/Users/psw/egov-mcp-lab/P03/nomcp/board-app",
+  "projectExists": true,
+  "startedAt": "2026-11-08T15:43:13.012Z",
+  "finishedAt": "2026-11-08T15:43:17.980Z",
+  "score": 2,
+  "maxScore": 19,
+  "groups": {
+    "기본 동작": {
+      "pass": 2,
+      "total": 2
+    },
+    "기본 기능": {
+      "pass": 0,
+      "total": 6
+    },
+    "사용자 편의": {
+      "pass": 0,
+      "total": 3
+    },
+    "시스템 설정": {
+      "pass": 0,
+      "total": 4
+    },
+    "패키지 구성": {
+      "pass": 0,
+      "total": 1
+    },
+    "보안": {
+      "pass": 0,
+      "total": 2
+    },
+    "표준 준수율": {
+      "pass": 0,
+      "total": 1
+    }
+  },
+  "complianceRate": 100,
+  "milestones": {
+    "B1": {
+      "pass": true,
+      "detail": "",
+      "at": "2026-11-08T15:43:14.518Z"
+    },
+    "B2": {
+      "pass": true,
+      "detail": "",
+      "at": "2026-11-08T15:43:17.760Z"
+    },
+    "F1": {
+      "pass": false,
+      "detail": "등록 응답 500",
+      "at": "2026-11-08T15:43:17.836Z"
+    },
+    "F2": {
+      "pass": false,
+      "detail": "F1 실패로 건너뜀",
+      "at": "2026-11-08T15:43:17.836Z"
+    },
+    "F3": {
+      "pass": false,
+      "detail": "F2 실패로 건너뜀",
+      "at": "2026-11-08T15:43:17.836Z"
+    },
+    "F4": {
+      "pass": false,
+      "detail": "F3 실패로 건너뜀",
+      "at": "2026-11-08T15:43:17.836Z"
+    },
+    "F5": {
+      "pass": false,
+      "detail": "첨부 등록 실패 (응답 413, 목록에 없음)",
+      "at": "2026-11-08T15:43:17.854Z"
+    },
+    "F6": {
+      "pass": false,
+      "detail": "F5 실패로 건너뜀",
+      "at": "2026-11-08T15:43:17.854Z"
+    },
+    "U1": {
+      "pass": false,
+      "detail": "F1 실패로 건너뜀",
+      "at": "2026-11-08T15:43:17.854Z"
+    },
+    "U2": {
+      "pass": false,
+      "detail": "F1 실패로 건너뜀",
+      "at": "2026-11-08T15:43:17.854Z"
+    },
+    "U3": {
+      "pass": false,
+      "detail": "목록 화면의 krds- 클래스 0개 (3개 이상 필요); 프로젝트 리소스에 krds 자산 파일 없음",
+      "at": "2026-11-08T15:43:17.854Z"
+    },
+    "C1": {
+      "pass": false,
+      "detail": "@Configuration 1개 (Globals.java) — 누락: DataSource, SqlSessionFactory, TransactionManager",
+      "at": "2026-11-08T15:43:17.854Z"
+    },
+    "C2": {
+      "pass": false,
+      "detail": "Board ServiceImpl 클래스를 찾지 못함",
+      "at": "2026-11-08T15:43:17.854Z"
+    },
+    "C3": {
+      "pass": false,
+      "detail": "Board 소스에서 EgovIdGnrService(getNextStringId) 사용 흔적 없음; 등록(F1)이 실패해 채번 결과를 확인할 수 없음",
+      "at": "2026-11-08T15:43:17.856Z"
+    },
+    "C4": {
+      "pass": false,
+      "detail": "[검증] Board 소스에 검증 어노테이션(@Valid/@NotBlank/@EgovNullCheck 등)이 없음; [검증] 빈 제목 등록 시 500 오류 화면",
+      "at": "2026-11-08T15:43:17.874Z"
+    },
+    "P1": {
+      "pass": false,
+      "detail": "첨부 저장·다운로드 처리가 Board 클래스 안에 구현됨: BoardController",
+      "at": "2026-11-08T15:43:17.874Z"
+    },
+    "S1": {
+      "pass": false,
+      "detail": "F5 실패로 건너뜀",
+      "at": "2026-11-08T15:43:17.874Z"
+    },
+    "S2": {
+      "pass": false,
+      "detail": "F1 실패로 건너뜀",
+      "at": "2026-11-08T15:43:17.874Z"
+    },
+    "R1": {
+      "pass": false,
+      "detail": "적용률 100% (검사 1개, Board 계층 1개) — Board 계층 파일 1개 (Controller/ServiceImpl/Mapper 3개 필요)",
+      "at": "2026-11-08T15:43:17.980Z"
+    }
+  }
+}

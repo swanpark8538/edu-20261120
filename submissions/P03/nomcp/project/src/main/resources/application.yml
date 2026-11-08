@@ -1,0 +1,24 @@
+spring:
+  datasource:
+    url: jdbc:hsqldb:mem:boarddb
+    driver-class-name: org.hsqldb.jdbc.JDBCDriver
+    username: sa
+    password:
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.HSQLDialect
+
+# Thymeleaf 설정 (필요시) 
+spring.thymeleaf:
+  prefix: classpath:/templates/
+  suffix: .html
+  mode: HTML
+  cache: false
+
+# 전역 파일 저장 경로 기본값 (java.io.tmpdir/board-files)
+Globals:
+  fileStorePath: ${java.io.tmpdir}/board-files
