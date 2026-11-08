@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="egovframework.example.board.service.impl.BoardMapper">
+
+	<resultMap id="board" type="egovframework.example.board.service.BoardVO">
+		<result property="boardId" column="BOARD_ID"/>
+		<result property="title" column="TITLE"/>
+		<result property="content" column="CONTENT"/>
+		<result property="writer" column="WRITER"/>
+		<result property="atchFileId" column="ATCH_FILE_ID"/>
+	</resultMap>
+
+	<insert id="insertBoard" parameterType="boardVO">
+			INSERT INTO BOARD
+				( BOARD_ID, TITLE, CONTENT, WRITER, ATCH_FILE_ID )
+			VALUES ( #{boardId}, #{title}, #{content}, #{writer}, #{atchFileId} )
+	</insert>
+
+	<update id="updateBoard">
+			UPDATE BOARD
+			SET TITLE=#{title}, CONTENT=#{content}, WRITER=#{writer}, ATCH_FILE_ID=#{atchFileId}
+			WHERE BOARD_ID=#{boardId}
+	</update>
+
+	<delete id="deleteBoard">
+			DELETE FROM BOARD
+			WHERE BOARD_ID=#{boardId}
+	</delete>
+
+	<select id="selectBoard" resultMap="board">
+			SELECT BOARD_ID, TITLE, CONTENT, WRITER, ATCH_FILE_ID
+			FROM BOARD
+			WHERE BOARD_ID=#{boardId}
+	</select>
+
+    <select id="selectBoardForUpdate" resultMap="board">
+        SELECT BOARD_ID, TITLE, CONTENT, WRITER, ATCH_FILE_ID
+        FROM BOARD WHERE BOARD_ID=#{boardId} FOR UPDATE
+    </select>
+
+	<select id="selectBoardList" parameterType="boardDefaultVO" resultType="egovMap">
+			SELECT t.BOARD_ID, t.TITLE, t.CONTENT, t.WRITER
+			FROM BOARD t
+			WHERE 1=1
+			<!--
+				LIKE 검색 portability — CONCAT 3-arg 는 HSQL/MySQL/MariaDB/PostgreSQL/CUBRID/GOLDILOCKS 에서 동작.
+				Oracle/Tibero/Altibase 에서는 CONCAT 가 2-arg only 라 ORA-00909 발생.
+				해당 vendor 로 전환 시: CONCAT('%', #{searchKeyword}, '%')  →  '%' || #{searchKeyword} || '%'
+				(자세한 가이드: docs/dialect-portability.md)
+			-->
+			<if test="searchKeyword != null and searchKeyword != ''">
+		        <choose>
+		            <when test="searchCondition == 0">
+						AND	t.TITLE LIKE CONCAT('%', #{searchKeyword}, '%')
+					</when>
+		            <when test="searchCondition == 1">
+						AND	t.CONTENT LIKE CONCAT('%', #{searchKeyword}, '%')
+					</when>
+		            <when test="searchCondition == 2">
+						AND	t.WRITER LIKE CONCAT('%', #{searchKeyword}, '%')
+					</when>
+				</choose>
+			</if>
+			ORDER BY t.BOARD_ID DESC
+			<!--
+				페이징 portability — 기본은 HSQL/MySQL/MariaDB/PostgreSQL/CUBRID/GOLDILOCKS 호환 LIMIT/OFFSET.
+				운영 DB 변경 시 아래 라인을 교체하세요 (자세한 가이드: docs/dialect-portability.md).
+
+				Oracle 12c+ / Tibero 7+ / Altibase 7+:
+				    OFFSET #{firstIndex} ROWS FETCH NEXT #{recordCountPerPage} ROWS ONLY
+				Oracle 11g 이하:
+				    위 SELECT 를 ROWNUM 서브쿼리로 감싸야 함 — 가이드 참고
+			-->
+			LIMIT #{recordCountPerPage} OFFSET #{firstIndex}
+	</select>
+
+	<select id="selectBoardListTotCnt" parameterType="boardDefaultVO" resultType="int">
+			SELECT COUNT(*) totcnt
+			FROM BOARD t
+			WHERE 1=1
+			<if test="searchKeyword != null and searchKeyword != ''">
+		        <choose>
+		            <when test="searchCondition == 0">
+						AND t.TITLE LIKE CONCAT('%', #{searchKeyword}, '%')
+					</when>
+		            <when test="searchCondition == 1">
+						AND t.CONTENT LIKE CONCAT('%', #{searchKeyword}, '%')
+					</when>
+		            <when test="searchCondition == 2">
+						AND t.WRITER LIKE CONCAT('%', #{searchKeyword}, '%')
+					</when>
+				</choose>
+			</if>
+	</select>
+
+</mapper>

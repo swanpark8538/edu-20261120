@@ -1,0 +1,11 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout :: head('게시물 상세')}"></head>
+<body><header th:replace="~{layout :: header}"></header>
+<main id="main" class="inner main-content">
+ <div class="breadcrumb"><a th:href="@{/egovBoardList.do}">게시판</a><span aria-hidden="true"> / </span>게시물 상세</div>
+ <article><div class="page-title detail-title"><h1 th:text="${board.title}"></h1><p><span th:text="${board.writer}"></span><span aria-hidden="true"> · </span><time th:text="${#strings.substring(board.createdAt,0,10)}"></time></p></div>
+ <div class="post-content" th:text="${board.content}"></div>
+ <section class="attachments" aria-labelledby="attachments-title"><h2 id="attachments-title">첨부파일 <span th:text="${#lists.size(files)}"></span></h2><p th:if="${#lists.isEmpty(files)}" class="help-text">첨부파일이 없습니다.</p><ul class="file-list" th:if="${!#lists.isEmpty(files)}"><li th:each="file : ${files}"><a th:href="@{/downloadFile.do(fileId=${file.fileId})}"><span th:text="${file.originalName}"></span> <span class="download-label">내려받기</span></a><span class="file-size" th:text="${file.fileSize} + ' bytes'"></span></li></ul></section></article>
+ <div class="detail-actions"><a class="krds-btn large tertiary" th:href="@{/egovBoardList.do}">목록</a><form method="post" th:action="@{/updateBoardView.do}"><input name="boardId" type="hidden" th:value="${board.boardId}"><button type="submit" class="krds-btn large">수정</button></form><form method="post" th:action="@{/deleteBoard.do}" data-confirm="게시물과 모든 첨부파일을 삭제하시겠습니까?"><input name="boardId" type="hidden" th:value="${board.boardId}"><button class="krds-btn large tertiary danger" type="submit">삭제</button></form></div>
+</main><footer th:replace="~{layout :: footer}"></footer></body></html>

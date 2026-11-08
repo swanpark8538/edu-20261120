@@ -1,0 +1,4 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout :: head('요청 안내')}"></head>
+<body><header th:replace="~{layout :: header}"></header><main id="main" class="inner main-content"><div class="page-title"><h1>요청을 처리할 수 없습니다</h1></div><p class="error-box" th:text="${errorMessage ?: '요청이 올바르지 않거나 접근할 수 없는 페이지입니다.'}"></p><a class="krds-btn large" th:href="@{/egovBoardList.do}">게시판으로 돌아가기</a></main><footer th:replace="~{layout :: footer}"></footer></body></html>

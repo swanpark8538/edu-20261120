@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout :: head(${board.boardId == null ? '게시물 등록' : '게시물 수정'})}"></head>
+<body>
+<header th:replace="~{layout :: header}"></header>
+<main id="main" class="inner main-content form-page">
+ <div class="breadcrumb"><a th:href="@{/egovBoardList.do}">게시판</a><span aria-hidden="true"> / </span><span th:text="${board.boardId == null ? '등록' : '수정'}"></span></div>
+ <div class="page-title"><h1 th:text="${board.boardId == null ? '게시물 등록' : '게시물 수정'}"></h1><p>내용을 작성하고 함께 나눌 자료를 첨부해 주세요.</p></div>
+ <form th:action="${board.boardId == null} ? @{/addBoard.do} : @{/updateBoard.do}" method="post" enctype="multipart/form-data" th:object="${board}">
+  <input th:if="${board.boardId != null}" type="hidden" th:field="*{boardId}"><input th:if="${board.boardId != null}" type="hidden" th:field="*{atchFileId}">
+  <div th:if="${formError}" class="error-box" role="alert" th:text="${formError}"></div>
+  <p class="required-note"><span class="required">*</span> 필수 입력 항목</p>
+  <div class="form-group"><label for="title">제목 <span class="required">*</span></label><input id="title" class="krds-input large" th:field="*{title}" required maxlength="200" placeholder="제목을 입력해 주세요" aria-describedby="title-error"><p id="title-error" class="field-error" th:errors="*{title}"></p></div>
+  <div class="form-group"><label for="writer">작성자 <span class="required">*</span></label><input id="writer" class="krds-input large writer-input" th:field="*{writer}" required maxlength="50" placeholder="작성자 이름" aria-describedby="writer-error"><p id="writer-error" class="field-error" th:errors="*{writer}"></p></div>
+  <div class="form-group"><label for="content">내용</label><textarea class="krds-input content-input" id="content" th:field="*{content}" maxlength="4000" rows="12" placeholder="내용을 입력해 주세요" aria-describedby="content-error"></textarea><p class="help-text">최대 4,000자까지 입력할 수 있습니다.</p><p id="content-error" class="field-error" th:errors="*{content}"></p></div>
+  <div class="form-group"><label for="file_1">첨부파일</label><div class="upload-panel"><input id="file_1" type="file" name="file_1" multiple accept=".txt,.csv,.pdf,.png,.jpg,.jpeg,.gif,.webp,.zip,.hwp,.hwpx,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.odt" aria-describedby="file-help"><p id="file-help" class="help-text">한 번에 최대 10개 · 개당 10MB · 합계 45MB<br>문서, 이미지, ZIP 파일을 첨부할 수 있습니다. 기존 첨부파일은 유지됩니다.</p></div>
+   <ul class="file-list" th:if="${!#lists.isEmpty(files)}"><li th:each="file : ${files}"><a th:href="@{/downloadFile.do(fileId=${file.fileId})}"><span th:text="${file.originalName}"></span> <span class="download-label">내려받기</span></a><span class="file-size" th:text="${file.fileSize} + ' bytes'"></span></li></ul>
+  </div>
+  <div class="form-actions"><a class="krds-btn large tertiary" th:href="@{/egovBoardList.do}">목록</a><button class="krds-btn large" type="submit" th:text="${board.boardId == null ? '등록' : '수정 저장'}"></button></div>
+ </form>
+ <form th:if="${board.boardId != null}" method="post" th:action="@{/deleteBoard.do}" class="delete-form" data-confirm="게시물과 모든 첨부파일을 삭제하시겠습니까?"><input type="hidden" name="boardId" th:value="${board.boardId}"><button type="submit" class="krds-btn medium tertiary danger">게시물 삭제</button></form>
+</main>
+<footer th:replace="~{layout :: footer}"></footer>
+</body></html>

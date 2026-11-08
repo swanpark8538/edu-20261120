@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:fragment="head(title)">
+ <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+ <title th:text="${title} + ' | 열린 게시판'">열린 게시판</title>
+ <link rel="stylesheet" th:href="@{/vendor/krds/krds.min.css}">
+ <link rel="stylesheet" th:href="@{/css/board.css}">
+ <script defer th:src="@{/js/board.js}"></script>
+</head>
+<body>
+ <header th:fragment="header">
+  <a class="skip-link" href="#main">본문 바로가기</a>
+  <div class="masthead"><div class="inner">전자정부 표준프레임워크 기반 공공 게시판</div></div>
+  <div class="brand inner"><a th:href="@{/egovBoardList.do}"><span class="brand-symbol" aria-hidden="true">B</span> 열린 게시판</a><span class="brand-caption">소통으로 연결되는 공간</span></div>
+  <nav class="main-nav" aria-label="주 메뉴"><div class="inner"><a th:href="@{/egovBoardList.do}" aria-current="page">게시판</a></div></nav>
+ </header>
+ <footer th:fragment="footer"><div class="inner"><strong>열린 게시판</strong><p>누구나 편리하게 정보를 나누는 소통 공간입니다.</p><small>eGovFrame 5.0 · KRDS</small></div></footer>
+</body>
+</html>
