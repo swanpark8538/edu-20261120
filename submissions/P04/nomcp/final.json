@@ -1,0 +1,138 @@
+{
+  "label": "P04-nomcp-final",
+  "run": "nomcp",
+  "project": "C:\\Users\\absol\\egov-mcp-lab\\P04\\nomcp\\board-app",
+  "projectExists": true,
+  "startedAt": "2026-11-08T17:24:39.744Z",
+  "finishedAt": "2026-11-08T17:24:48.140Z",
+  "score": 17,
+  "maxScore": 19,
+  "groups": {
+    "기본 동작": {
+      "pass": 2,
+      "total": 2
+    },
+    "기본 기능": {
+      "pass": 6,
+      "total": 6
+    },
+    "사용자 편의": {
+      "pass": 3,
+      "total": 3
+    },
+    "시스템 설정": {
+      "pass": 3,
+      "total": 4
+    },
+    "패키지 구성": {
+      "pass": 0,
+      "total": 1
+    },
+    "보안": {
+      "pass": 2,
+      "total": 2
+    },
+    "표준 준수율": {
+      "pass": 1,
+      "total": 1
+    }
+  },
+  "complianceRate": 100,
+  "milestones": {
+    "B1": {
+      "pass": true,
+      "detail": "",
+      "at": "2026-11-08T17:24:43.655Z"
+    },
+    "B2": {
+      "pass": true,
+      "detail": "",
+      "at": "2026-11-08T17:24:47.071Z"
+    },
+    "F1": {
+      "pass": true,
+      "detail": "",
+      "at": "2026-11-08T17:24:47.146Z"
+    },
+    "F2": {
+      "pass": true,
+      "detail": "",
+      "at": "2026-11-08T17:24:47.162Z"
+    },
+    "F3": {
+      "pass": true,
+      "detail": "",
+      "at": "2026-11-08T17:24:47.185Z"
+    },
+    "F4": {
+      "pass": true,
+      "detail": "",
+      "at": "2026-11-08T17:24:47.201Z"
+    },
+    "F5": {
+      "pass": true,
+      "detail": "",
+      "at": "2026-11-08T17:24:47.255Z"
+    },
+    "F6": {
+      "pass": true,
+      "detail": "",
+      "at": "2026-11-08T17:24:47.286Z"
+    },
+    "U1": {
+      "pass": true,
+      "detail": "1페이지 10건 + 2페이지 2건",
+      "at": "2026-11-08T17:24:47.391Z"
+    },
+    "U2": {
+      "pass": true,
+      "detail": "?searchKeyword=needle3fa3f2&searchCondition=0",
+      "at": "2026-11-08T17:24:47.402Z"
+    },
+    "U3": {
+      "pass": true,
+      "detail": "krds 자산 77개",
+      "at": "2026-11-08T17:24:47.402Z"
+    },
+    "C1": {
+      "pass": false,
+      "detail": "@Configuration 1개 (AppConfig.java) — 누락: TransactionManager",
+      "at": "2026-11-08T17:24:47.402Z"
+    },
+    "C2": {
+      "pass": true,
+      "detail": "BoardServiceImpl.java 에 @Transactional",
+      "at": "2026-11-08T17:24:47.402Z"
+    },
+    "C3": {
+      "pass": true,
+      "detail": "AppConfig.java, BoardServiceImpl.java 에서 EgovIdGnrService 사용",
+      "at": "2026-11-08T17:24:47.407Z"
+    },
+    "C4": {
+      "pass": true,
+      "detail": "",
+      "at": "2026-11-08T17:24:47.443Z"
+    },
+    "P1": {
+      "pass": false,
+      "detail": "Board 도메인 전용 패키지가 없음 (계층 패키지가 루트 egovframework.board 바로 아래: service, service.impl, web); 첨부 기능 클래스가 Board 도메인 패키지 안에 있음: service.AttachmentVO, service.impl.FileStorage; 첨부 저장·다운로드 처리가 Board 클래스 안에 구현됨: BoardController",
+      "at": "2026-11-08T17:24:47.444Z"
+    },
+    "S1": {
+      "pass": true,
+      "detail": "",
+      "at": "2026-11-08T17:24:47.568Z"
+    },
+    "S2": {
+      "pass": true,
+      "detail": "",
+      "at": "2026-11-08T17:24:47.618Z"
+    },
+    "R1": {
+      "pass": true,
+      "detail": "적용률 100% (검사 3개, Board 계층 3개)",
+      "at": "2026-11-08T17:24:48.140Z"
+    }
+  }
+}

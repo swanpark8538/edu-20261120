@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments :: head(${editing ? '게시물 확인 · 수정' : '새 글 작성'})}"></head>
+<body>
+<header th:replace="~{fragments :: header}"></header>
+<main id="main" class="container form-container">
+  <div class="breadcrumb"><a th:href="@{/egovBoardList.do}">소통 게시판</a><span aria-hidden="true">›</span><span th:text="${editing ? '게시물 확인 · 수정' : '새 글 작성'}"></span></div>
+  <div class="page-heading"><p class="eyebrow">COMMUNITY</p><h1 th:text="${editing ? '게시물 확인 · 수정' : '새 글 작성'}"></h1><p th:text="${editing ? '게시물 내용을 확인하고 수정할 수 있습니다.' : '함께 나누고 싶은 이야기를 남겨 주세요.'}"></p></div>
+  <form method="post" enctype="multipart/form-data" th:action="${editing} ? @{/updateBoard.do} : @{/addBoard.do}" th:object="${board}">
+    <input th:if="${editing}" type="hidden" th:field="*{boardId}"><input th:if="${editing}" type="hidden" th:field="*{atchFileId}">
+    <div th:if="${#fields.hasAnyErrors()}" class="error-summary" role="alert"><strong>입력 내용을 확인해 주세요.</strong><ul><li th:each="error : ${#fields.allErrors()}" th:text="${error}"></li></ul><p>첨부하려던 파일은 다시 선택해 주세요.</p></div>
+    <p class="required-guide"><span aria-hidden="true">*</span> 표시는 필수 입력 항목입니다.</p>
+    <div class="form-field"><label for="title">제목 <span aria-hidden="true">*</span></label><input class="krds-input" id="title" th:field="*{title}" required maxlength="200" placeholder="제목을 입력해 주세요" th:attr="aria-invalid=${#fields.hasErrors('title')}"><small>최대 200자</small></div>
+    <div class="form-field writer-field"><label for="writer">작성자 <span aria-hidden="true">*</span></label><input class="krds-input" id="writer" th:field="*{writer}" required maxlength="50" placeholder="작성자 이름" th:attr="aria-invalid=${#fields.hasErrors('writer')}"></div>
+    <div class="form-field"><label for="content">내용</label><textarea class="krds-input" id="content" th:field="*{content}" rows="12" maxlength="4000" placeholder="내용을 입력해 주세요" aria-describedby="content-help"></textarea><small id="content-help">최대 4,000자. 개인정보가 포함되지 않도록 주의해 주세요.</small></div>
+    <section class="attachment-section" aria-labelledby="attachment-title"><h2 id="attachment-title">첨부파일</h2>
+      <ul class="file-list" th:if="${!#lists.isEmpty(files)}"><li th:each="file : ${files}"><span><a th:href="@{/downloadFile.do(fileId=${file.fileId})}" th:text="${file.originalName}"></a><small th:text="' (' + ${file.fileSize} + ' bytes)' "></small></span><a class="download-link" th:href="@{/downloadFile.do(fileId=${file.fileId})}">내려받기 <span class="sr-only" th:text="${file.originalName}"></span></a></li></ul>
+      <div class="upload-box"><label for="file_1">파일 선택 <span class="muted">(여러 개 선택 가능)</span></label><input id="file_1" name="file_1" type="file" multiple accept=".txt,.csv,.pdf,.png,.jpg,.jpeg,.gif,.zip,.docx,.xlsx,.pptx,.hwp,.hwpx,.doc,.xls,.ppt" aria-describedby="file-help"><p id="file-help">게시물당 최대 10개 · 파일당 10MB · 한 번에 총 55MB 이내<br>문서(TXT, CSV, PDF, HWP, HWPX, DOC, DOCX, XLS, XLSX, PPT, PPTX), 이미지(PNG, JPG, GIF), ZIP을 첨부할 수 있습니다.</p><p th:if="${editing}">기존 첨부파일은 유지되며 선택한 파일이 추가됩니다.</p></div>
+    </section>
+    <div class="form-actions"><a th:href="@{/egovBoardList.do}" class="krds-btn tertiary">목록으로</a><button type="submit" class="krds-btn primary" th:text="${editing ? '수정 저장' : '등록하기'}"></button></div>
+  </form>
+  <details th:if="${editing}" class="delete-panel"><summary>게시물 삭제</summary><p>삭제하면 게시물과 첨부파일을 복구할 수 없습니다.</p><form method="post" th:action="@{/deleteBoard.do}"><input type="hidden" name="boardId" th:value="${board.boardId}"><button type="submit" class="krds-btn secondary danger">게시물과 첨부파일 삭제</button></form></details>
+</main>
+<footer th:replace="~{fragments :: footer}"></footer>
+</body></html>

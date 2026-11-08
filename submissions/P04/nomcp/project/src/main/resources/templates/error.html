@@ -1,0 +1,2 @@
+<!doctype html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"><head th:replace="~{fragments :: head('요청 안내')}"></head><body><header th:replace="~{fragments :: header}"></header><main id="main" class="container error-page"><p class="eyebrow" th:text="${status ?: 'ERROR'}"></p><h1>요청을 확인해 주세요</h1><p th:text="${message ?: '요청을 처리하지 못했습니다. 목록에서 다시 이용해 주세요.'}"></p><a class="krds-btn primary" th:href="@{/egovBoardList.do}">게시물 목록으로</a></main><footer th:replace="~{fragments :: footer}"></footer></body></html>

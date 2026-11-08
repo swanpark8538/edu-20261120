@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="Board">
+  <resultMap id="board" type="egovframework.board.service.BoardVO">
+    <id property="boardId" column="BOARD_ID"/><result property="title" column="TITLE"/>
+    <result property="content" column="CONTENT"/><result property="writer" column="WRITER"/>
+    <result property="atchFileId" column="ATCH_FILE_ID"/><result property="createdAt" column="CREATED_AT"/>
+    <result property="fileCount" column="FILE_COUNT"/>
+  </resultMap>
+  <resultMap id="attachment" type="egovframework.board.service.AttachmentVO">
+    <id property="fileId" column="FILE_ID"/><result property="boardId" column="BOARD_ID"/>
+    <result property="originalName" column="ORIGINAL_NAME"/><result property="storedName" column="STORED_NAME"/>
+    <result property="fileSize" column="FILE_SIZE"/>
+  </resultMap>
+  <sql id="search">
+    <if test="searchKeyword != null and searchKeyword != ''">
+      WHERE <choose><when test='searchCondition == "1"'>LOWER(B.CONTENT)</when><when test='searchCondition == "2"'>LOWER(B.WRITER)</when><otherwise>LOWER(B.TITLE)</otherwise></choose>
+      LIKE LOWER(#{likeKeyword}) ESCAPE '!'
+    </if>
+  </sql>
+  <select id="list" resultMap="board">
+    SELECT B.*, (SELECT COUNT(*) FROM BOARD_FILE F WHERE F.BOARD_ID = B.BOARD_ID) AS FILE_COUNT
+    FROM BOARD B <include refid="search"/> ORDER BY B.BOARD_ID DESC OFFSET #{offset} ROWS FETCH NEXT 10 ROWS ONLY
+  </select>
+  <select id="count" resultType="int">SELECT COUNT(*) FROM BOARD B <include refid="search"/></select>
+  <select id="lock" resultType="string">SELECT BOARD_ID FROM BOARD WHERE BOARD_ID = #{value} FOR UPDATE</select>
+  <select id="find" resultMap="board">SELECT B.*, (SELECT COUNT(*) FROM BOARD_FILE F WHERE F.BOARD_ID = B.BOARD_ID) AS FILE_COUNT FROM BOARD B WHERE BOARD_ID = #{value}</select>
+  <insert id="insert">INSERT INTO BOARD (BOARD_ID, TITLE, CONTENT, WRITER, ATCH_FILE_ID) VALUES (#{boardId}, #{title}, #{content}, #{writer}, #{atchFileId})</insert>
+  <update id="update">UPDATE BOARD SET TITLE = #{title}, CONTENT = #{content}, WRITER = #{writer} WHERE BOARD_ID = #{boardId}</update>
+  <delete id="delete">DELETE FROM BOARD WHERE BOARD_ID = #{value}</delete>
+  <select id="files" resultMap="attachment">SELECT * FROM BOARD_FILE WHERE BOARD_ID = #{value} ORDER BY CREATED_AT, FILE_ID</select>
+  <select id="file" resultMap="attachment">SELECT * FROM BOARD_FILE WHERE FILE_ID = #{value}</select>
+  <insert id="insertFile">INSERT INTO BOARD_FILE (FILE_ID, BOARD_ID, ORIGINAL_NAME, STORED_NAME, FILE_SIZE) VALUES (#{fileId}, #{boardId}, #{originalName}, #{storedName}, #{fileSize})</insert>
+</mapper>

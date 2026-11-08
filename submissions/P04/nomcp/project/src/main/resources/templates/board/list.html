@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments :: head('게시물 목록')}"></head>
+<body>
+<header th:replace="~{fragments :: header}"></header>
+<main id="main" class="container">
+  <div class="breadcrumb"><span>홈</span><span aria-hidden="true">›</span><span>소통 게시판</span></div>
+  <div class="page-heading"><p class="eyebrow">COMMUNITY</p><h1>소통 게시판</h1><p>궁금한 점을 묻고, 필요한 정보를 함께 나누세요.</p></div>
+  <div th:if="${message}" class="notice" role="status" th:text="${message}"></div>
+  <form class="search-panel" method="get" th:action="@{/egovBoardList.do}" th:object="${search}" role="search">
+    <div class="search-field"><label for="searchCondition">검색 조건</label><select class="krds-form-select" id="searchCondition" th:field="*{searchCondition}"><option value="0">제목</option><option value="1">내용</option><option value="2">작성자</option></select></div>
+    <div class="search-field keyword"><label for="searchKeyword">검색어</label><input class="krds-input" type="search" id="searchKeyword" th:field="*{searchKeyword}" maxlength="200" placeholder="검색어를 입력해 주세요"></div>
+    <button class="krds-btn primary" type="submit">검색</button>
+    <a class="krds-btn tertiary" th:href="@{/egovBoardList.do}">초기화</a>
+  </form>
+  <div class="list-toolbar"><p>전체 <strong th:text="${pagination.totalRecordCount}">0</strong>건 <span class="muted" th:text="'· ' + ${search.pageIndex} + ' / ' + ${T(java.lang.Math).max(1, pagination.totalPageCount)} + ' 페이지'"></span></p><form method="post" th:action="@{/addBoardView.do}"><button type="submit" class="krds-btn primary">글쓰기 <span aria-hidden="true">＋</span></button></form></div>
+  <div class="table-wrap"><table class="board-table"><caption class="sr-only">게시물 목록: 번호, 제목, 작성자, 등록일, 첨부파일 수</caption><thead><tr><th scope="col" class="number">번호</th><th scope="col">제목</th><th scope="col">작성자</th><th scope="col">등록일</th><th scope="col">첨부</th></tr></thead><tbody>
+    <tr th:if="${#lists.isEmpty(boards)}"><td colspan="5" class="empty"><strong>등록된 게시물이 없습니다.</strong><p>검색어를 변경하거나 첫 번째 글을 작성해 보세요.</p></td></tr>
+    <tr th:each="item, row : ${boards}"><td class="number" th:text="${pagination.totalRecordCount - search.offset - row.index}"></td><td class="title-cell"><form method="post" th:action="@{/updateBoardView.do}"><input type="hidden" name="boardId" th:value="${item.boardId}"><button class="title-link" type="submit" th:text="${item.title}"></button></form></td><td th:text="${item.writer}"></td><td class="date" th:text="${#strings.substring(item.createdAt, 0, 10)}"></td><td><span th:if="${item.fileCount > 0}" th:text="${item.fileCount} + '개'" aria-label="첨부파일 수"></span><span th:if="${item.fileCount == 0}">—</span></td></tr>
+  </tbody></table></div>
+  <nav class="pagination" aria-label="게시물 페이지" th:if="${pagination.totalPageCount > 1}">
+    <a th:if="${search.pageIndex > 1}" th:href="@{/egovBoardList.do(pageIndex=${search.pageIndex - 1},searchCondition=${search.searchCondition},searchKeyword=${search.searchKeyword})}">이전</a>
+    <th:block th:each="n : ${#numbers.sequence(pagination.firstPageNoOnPageList, pagination.lastPageNoOnPageList)}"><a th:href="@{/egovBoardList.do(pageIndex=${n},searchCondition=${search.searchCondition},searchKeyword=${search.searchKeyword})}" th:text="${n}" th:classappend="${n == search.pageIndex} ? 'active'" th:attr="aria-current=${n == search.pageIndex ? 'page' : null}"></a></th:block>
+    <a th:if="${search.pageIndex < pagination.totalPageCount}" th:href="@{/egovBoardList.do(pageIndex=${search.pageIndex + 1},searchCondition=${search.searchCondition},searchKeyword=${search.searchKeyword})}">다음</a>
+  </nav>
+  <aside class="info-panel"><strong>게시판 이용 안내</strong><p>개인정보와 민감한 정보가 포함되지 않도록 확인해 주세요. 게시물 제목을 선택하면 내용을 확인하고 수정할 수 있습니다.</p></aside>
+</main>
+<footer th:replace="~{fragments :: footer}"></footer>
+</body></html>

@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<!--
+	엔티티 간 메뉴 네비게이션 fragment (eGovFrame 5.0 Boot / Thymeleaf 3.1+).
+
+	이 파일은 egov_add_entity 도구가 단일 출처(single source of truth) 로 관리한다 — 사용자가
+	직접 수정하면 다음 호출 (autoApplyMenu=true) 에서 덮어쓸 수 있다. 사용자 정의 메뉴 항목이
+	필요하면 별도의 fragment 파일을 만들거나 이 파일을 fork 해서 자기 view 에서 직접 include 하라.
+
+	활성 메뉴 판별:
+	  Thymeleaf 3.1 부터 #request / #httpServletRequest 등이 기본 비활성이라,
+	  EgovNavModelAdvice 가 모든 화면에 주입하는 `egovRequestUri` 모델 속성을 쓴다.
+	  primary 엔티티(루트 `@GetMapping("/")` 담당) 는 URI 가 `/` 일 때도 활성으로 강조한다.
+
+	  접두사 충돌 주의: 비교는 `/egov{Entity}List` 까지 매치한다 — `/egov{Entity}`
+	  만 비교하면 'Student' 가 'StudentEnrollmentReport' URL 에도 매치되어 두 메뉴가
+	  동시에 활성화되는 버그가 난다. eGovFrame 의 모든 entity URL 은
+	  `/egov{Entity}List.do` 한 가지뿐(add/update/delete 는 `/add{Entity}...` 등) 이므로
+	  `List` 접미사까지 비교해도 정상이다.
+-->
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+	<nav th:fragment="links" class="egov-entity-nav" aria-label="entity navigation">
+		<style>
+			.egov-entity-nav { margin: 0 0 1.5rem 0; padding: 0; border-bottom: 1px solid var(--krds-color-light-primary-10, #d8e5fd); }
+			.egov-entity-nav-list { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 0.25rem; }
+			.egov-entity-nav-list > li { margin: 0; padding: 0; }
+			.egov-entity-nav-list > li > a {
+				display: inline-block;
+				padding: 0.625rem 1rem;
+				color: var(--krds-color-light-primary-70, #083891);
+				font-weight: 500;
+				text-decoration: none;
+				border-radius: 6px 6px 0 0;
+				transition: background-color 0.15s ease, color 0.15s ease;
+			}
+			.egov-entity-nav-list > li > a:hover,
+			.egov-entity-nav-list > li > a:focus {
+				background-color: var(--krds-color-light-primary-5, #ecf2fe);
+				color: var(--krds-color-light-primary-80, #052561);
+				outline: none;
+			}
+			.egov-entity-nav-list > li > a.is-active {
+				background-color: var(--krds-color-light-primary-50, #256ef4);
+				color: #fff;
+				font-weight: 600;
+			}
+			.egov-entity-nav-list > li > a.is-active:hover,
+			.egov-entity-nav-list > li > a.is-active:focus {
+				background-color: var(--krds-color-light-primary-60, #0b50d0);
+				color: #fff;
+			}
+		</style>
+		<ul class="egov-entity-nav-list">
+			<li>
+				<a th:href="@{/egovBoardList.do}"
+				   th:classappend="${egovRequestUri == '/' or (egovRequestUri != null and egovRequestUri.startsWith('/egovBoardList'))} ? 'is-active' : ''"
+				   th:text="#{nav.board}">Board</a>
+			</li>
+		</ul>
+	</nav>
+</body>
+</html>
