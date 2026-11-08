@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('게시물 수정')}"></head>
+<body>
+<th:block th:replace="~{fragments/layout :: header}"></th:block>
+
+<main id="container" class="board-inner">
+    <h1 class="board-title">게시물 수정</h1>
+
+    <form id="updateForm" th:action="@{/updateBoard.do}" th:object="${boardVO}" method="post" enctype="multipart/form-data" class="board-form">
+        <input type="hidden" th:field="*{boardId}">
+        <input type="hidden" th:field="*{atchFileId}">
+
+        <th:block th:replace="~{fragments/boardForm :: fields}"></th:block>
+
+        <div class="krds-file-upload line" th:unless="${#lists.isEmpty(fileList)}">
+            <div class="file-head">
+                <h3 class="tit">첨부파일 목록</h3>
+            </div>
+            <div class="file-list">
+                <ul class="upload-list">
+                    <li th:each="file : ${fileList}">
+                        <div class="file-info m-column">
+                            <div class="file-name" th:text="|${file.orignlFileNm} [${file.fileExtsn}, ${file.fileSizeLabel}]|">파일명</div>
+                            <div class="btn-wrap">
+                                <a class="krds-btn medium text"
+                                   th:href="@{/downloadFile.do(atchFileId=${file.atchFileId}, fileSn=${file.fileSn})}"
+                                   th:attr="aria-label=|${file.orignlFileNm} 내려받기|">내려받기 <i class="svg-icon ico-down"></i></a>
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <div th:replace="~{fragments/boardForm :: upload}"></div>
+    </form>
+
+    <form id="deleteForm" th:action="@{/deleteBoard.do}" method="post" data-confirm="이 게시물과 첨부파일을 삭제하시겠습니까?">
+        <input type="hidden" name="boardId" th:value="${boardVO.boardId}">
+    </form>
+
+    <div class="board-actions">
+        <a class="krds-btn medium tertiary" th:href="@{/egovBoardList.do}">목록</a>
+        <button type="submit" form="deleteForm" class="krds-btn medium secondary">삭제</button>
+        <button type="submit" form="updateForm" class="krds-btn medium">수정</button>
+    </div>
+</main>
+
+<th:block th:replace="~{fragments/layout :: footer}"></th:block>
+</body>
+</html>

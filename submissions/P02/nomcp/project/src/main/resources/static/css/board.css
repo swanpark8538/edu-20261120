@@ -1,0 +1,241 @@
+/* KRDS 패키지의 PretendardGOV 글꼴을 내장 경로에서 불러온다. */
+@font-face {
+    font-family: "Pretendard GOV";
+    font-weight: 400;
+    font-display: swap;
+    src: url("../krds/fonts/PretendardGOV-Regular.subset.woff2") format("woff2");
+}
+
+@font-face {
+    font-family: "Pretendard GOV";
+    font-weight: 500;
+    font-display: swap;
+    src: url("../krds/fonts/PretendardGOV-Medium.subset.woff2") format("woff2");
+}
+
+@font-face {
+    font-family: "Pretendard GOV";
+    font-weight: 700;
+    font-display: swap;
+    src: url("../krds/fonts/PretendardGOV-Bold.subset.woff2") format("woff2");
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    color: var(--krds-color-light-gray-90, #1e2124);
+    background: var(--krds-color-light-gray-0, #fff);
+}
+
+.board-inner {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 24px;
+}
+
+.board-header {
+    border-bottom: 1px solid var(--krds-color-light-gray-20, #cdd1d5);
+}
+
+.board-header .board-inner {
+    display: flex;
+    align-items: center;
+    min-height: 72px;
+}
+
+.board-logo {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--krds-color-light-primary-60, #256ef4);
+    text-decoration: none;
+}
+
+main.board-inner {
+    flex: 1;
+    padding-top: 40px;
+    padding-bottom: 64px;
+}
+
+.board-title {
+    margin: 0 0 32px;
+    font-size: 32px;
+    font-weight: 700;
+    line-height: 1.4;
+}
+
+.board-notice,
+.board-alert {
+    margin: 0 0 24px;
+    padding: 16px 20px;
+    border-radius: 8px;
+}
+
+.board-notice {
+    color: var(--krds-color-light-success-70, #1f6b3c);
+    background: var(--krds-color-light-success-5, #eaf6ec);
+}
+
+.board-alert {
+    color: var(--krds-color-light-danger-60, #bd2c0f);
+    background: var(--krds-color-light-danger-5, #fdefec);
+}
+
+.board-search {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+    margin-bottom: 24px;
+}
+
+.board-search .krds-form-select {
+    flex: 0 0 140px;
+    width: 140px;
+}
+
+.board-search .krds-input {
+    flex: 1 1 240px;
+    width: auto;
+}
+
+.board-total {
+    margin: 0 0 12px;
+}
+
+.board-table .col-no {
+    width: 80px;
+}
+
+.board-table .col-writer {
+    width: 140px;
+}
+
+.board-table .col-file {
+    width: 80px;
+}
+
+.board-table .col-date {
+    width: 130px;
+}
+
+.board-table td {
+    text-align: center;
+    overflow-wrap: anywhere;
+}
+
+.board-table td.board-cell-title {
+    text-align: left;
+}
+
+.board-title-link {
+    padding: 0;
+    border: 0;
+    color: inherit;
+    font: inherit;
+    text-align: left;
+    text-decoration: underline;
+    overflow-wrap: anywhere;
+    background: none;
+    cursor: pointer;
+}
+
+.board-title-link:hover {
+    color: var(--krds-color-light-primary-60, #256ef4);
+}
+
+.krds-pagination {
+    margin-top: 32px;
+}
+
+.board-form .form-group {
+    margin-bottom: 24px;
+}
+
+.board-form .krds-input {
+    width: 100%;
+}
+
+.board-textarea {
+    min-height: 240px;
+}
+
+.board-required {
+    color: var(--krds-color-light-danger-60, #bd2c0f);
+    font-size: 14px;
+}
+
+.board-form .krds-file-upload {
+    margin-bottom: 24px;
+}
+
+.board-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: flex-end;
+    margin-top: 32px;
+}
+
+.board-footer {
+    padding: 24px 0;
+    color: var(--krds-color-light-gray-60, #6d7882);
+    font-size: 14px;
+    border-top: 1px solid var(--krds-color-light-gray-20, #cdd1d5);
+}
+
+.board-footer p {
+    margin: 0;
+}
+
+@media (min-width: 768px) {
+    .krds-pagination .page-navi.next {
+        order: 3;
+    }
+}
+
+@media (max-width: 767px) {
+    .board-inner {
+        padding: 0 16px;
+    }
+
+    .krds-table-wrap {
+        width: 100%;
+    }
+
+    .krds-table-wrap .board-table {
+        min-width: 0;
+    }
+
+    .krds-table-wrap .board-table th,
+    .krds-table-wrap .board-table td {
+        padding-right: 8px;
+        padding-left: 8px;
+    }
+
+    .board-title {
+        font-size: 24px;
+    }
+
+    .board-table .col-file,
+    .board-table th:nth-child(4),
+    .board-table td:nth-child(4) {
+        display: none;
+    }
+
+    .board-table .col-no,
+    .board-table th:nth-child(1),
+    .board-table td:nth-child(1) {
+        display: none;
+    }
+
+    .board-table td[colspan] {
+        display: table-cell;
+    }
+
+    .board-table .col-writer,
+    .board-table .col-date {
+        width: 88px;
+    }
+}

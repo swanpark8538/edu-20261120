@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:fragment="head(pageTitle)">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="${pageTitle} + ' | 게시판'">게시판</title>
+    <link rel="icon" type="image/svg+xml" th:href="@{/krds/img/component/favicon/favicon.svg}">
+    <link rel="stylesheet" th:href="@{/krds/css/krds.min.css}">
+    <link rel="stylesheet" th:href="@{/css/board.css}">
+    <script defer th:src="@{/krds/js/krds.min.js}"></script>
+    <script defer th:src="@{/js/board.js}"></script>
+</head>
+<body>
+
+<th:block th:fragment="header">
+    <div id="krds-skip-link">
+        <a href="#container">본문 바로가기</a>
+    </div>
+    <header class="board-header">
+        <div class="board-inner">
+            <a class="board-logo" th:href="@{/egovBoardList.do}">게시판</a>
+        </div>
+    </header>
+</th:block>
+
+<footer class="board-footer" th:fragment="footer">
+    <div class="board-inner">
+        <p>eGovFrame 5.0 Boot 게시판 예제</p>
+    </div>
+</footer>
+
+</body>
+</html>

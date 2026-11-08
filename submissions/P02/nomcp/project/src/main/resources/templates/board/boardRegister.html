@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('게시물 등록')}"></head>
+<body>
+<th:block th:replace="~{fragments/layout :: header}"></th:block>
+
+<main id="container" class="board-inner">
+    <h1 class="board-title">게시물 등록</h1>
+
+    <form th:action="@{/addBoard.do}" th:object="${boardVO}" method="post" enctype="multipart/form-data" class="board-form">
+        <th:block th:replace="~{fragments/boardForm :: fields}"></th:block>
+        <div th:replace="~{fragments/boardForm :: upload}"></div>
+
+        <div class="board-actions">
+            <a class="krds-btn medium tertiary" th:href="@{/egovBoardList.do}">목록</a>
+            <button type="submit" class="krds-btn medium">등록</button>
+        </div>
+    </form>
+</main>
+
+<th:block th:replace="~{fragments/layout :: footer}"></th:block>
+</body>
+</html>

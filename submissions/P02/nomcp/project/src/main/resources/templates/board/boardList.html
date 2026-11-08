@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('게시물 목록')}"></head>
+<body>
+<th:block th:replace="~{fragments/layout :: header}"></th:block>
+
+<main id="container" class="board-inner">
+    <h1 class="board-title">게시물 목록</h1>
+
+    <p class="board-notice" role="status" th:if="${message}" th:text="${message}"></p>
+
+    <form class="board-search" th:action="@{/egovBoardList.do}" method="get" role="search">
+        <label class="sr-only" for="searchCondition">검색 조건</label>
+        <select id="searchCondition" name="searchCondition" class="krds-form-select" title="검색 조건 선택">
+            <option value="0" th:selected="${searchVO.searchCondition != '1' and searchVO.searchCondition != '2'}">제목</option>
+            <option value="1" th:selected="${searchVO.searchCondition == '1'}">내용</option>
+            <option value="2" th:selected="${searchVO.searchCondition == '2'}">작성자</option>
+        </select>
+        <label class="sr-only" for="searchKeyword">검색어</label>
+        <input type="text" id="searchKeyword" name="searchKeyword" class="krds-input" maxlength="100"
+               placeholder="검색어를 입력해 주세요" th:value="${searchVO.searchKeyword}">
+        <button type="submit" class="krds-btn medium">검색</button>
+    </form>
+
+    <p class="board-total">전체 <strong th:text="${totalCount}">0</strong>건</p>
+
+    <div class="krds-table-wrap">
+        <table class="tbl col data board-table">
+            <caption>게시물 목록: 번호, 제목, 작성자, 첨부, 등록일로 구성되어 있습니다.</caption>
+            <colgroup>
+                <col class="col-no">
+                <col>
+                <col class="col-writer">
+                <col class="col-file">
+                <col class="col-date">
+            </colgroup>
+            <thead>
+            <tr>
+                <th scope="col">번호</th>
+                <th scope="col">제목</th>
+                <th scope="col">작성자</th>
+                <th scope="col">첨부</th>
+                <th scope="col">등록일</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="board, stat : ${resultList}">
+                <td th:text="${totalCount - paginationInfo.firstRecordIndex - stat.index}">1</td>
+                <td class="board-cell-title">
+                    <form th:action="@{/updateBoardView.do}" method="post">
+                        <input type="hidden" name="boardId" th:value="${board.boardId}">
+                        <button type="submit" class="board-title-link" th:text="${board.title}">제목</button>
+                    </form>
+                </td>
+                <td th:text="${board.writer}">작성자</td>
+                <td><span th:if="${board.atchFileId != null}">있음</span><span th:unless="${board.atchFileId != null}">없음</span></td>
+                <td th:text="${board.regDate}">2026-01-01</td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(resultList)}">
+                <td colspan="5">등록된 게시물이 없습니다.</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <nav class="krds-pagination" aria-label="페이지 이동" th:if="${totalCount > 0}"
+         th:with="current=${paginationInfo.currentPageNo}, last=${paginationInfo.totalPageCount}">
+        <a class="page-navi prev" th:if="${current > 1}"
+           th:href="@{/egovBoardList.do(pageIndex=${current - 1}, searchCondition=${searchVO.searchCondition}, searchKeyword=${searchVO.searchKeyword})}">이전</a>
+        <span class="page-navi prev disabled" th:unless="${current > 1}">이전</span>
+        <div class="page-links">
+            <a class="page-link" th:each="page : ${#numbers.sequence(paginationInfo.firstPageNoOnPageList, paginationInfo.lastPageNoOnPageList)}"
+               th:classappend="${page == current} ? 'active'"
+               th:attr="aria-current=${page == current} ? 'page'"
+               th:href="@{/egovBoardList.do(pageIndex=${page}, searchCondition=${searchVO.searchCondition}, searchKeyword=${searchVO.searchKeyword})}"><span class="sr-only" th:if="${page == current}">현재페이지 </span><th:block th:text="${page}">1</th:block></a>
+        </div>
+        <a class="page-navi next" th:if="${current < last}"
+           th:href="@{/egovBoardList.do(pageIndex=${current + 1}, searchCondition=${searchVO.searchCondition}, searchKeyword=${searchVO.searchKeyword})}">다음</a>
+        <span class="page-navi next disabled" th:unless="${current < last}">다음</span>
+    </nav>
+
+    <div class="board-actions">
+        <form th:action="@{/addBoardView.do}" method="post">
+            <button type="submit" class="krds-btn medium">글쓰기</button>
+        </form>
+    </div>
+</main>
+
+<th:block th:replace="~{fragments/layout :: footer}"></th:block>
+</body>
+</html>

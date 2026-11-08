@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('안내')}"></head>
+<body>
+<th:block th:replace="~{fragments/layout :: header}"></th:block>
+
+<main id="container" class="board-inner">
+    <h1 class="board-title">요청을 처리할 수 없습니다</h1>
+
+    <div class="board-alert" role="alert">
+        <p th:if="${errorMessage}" th:text="${errorMessage}"></p>
+        <th:block th:unless="${errorMessage}" th:switch="${status}">
+            <p th:case="400">요청 형식이 올바르지 않습니다.</p>
+            <p th:case="403">요청이 거부되었습니다. 화면을 새로 연 뒤 다시 시도해 주세요.</p>
+            <p th:case="404">요청한 페이지를 찾을 수 없습니다.</p>
+            <p th:case="405">허용되지 않는 요청 방식입니다.</p>
+            <p th:case="*">일시적인 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.</p>
+        </th:block>
+    </div>
+
+    <div class="board-actions">
+        <a class="krds-btn medium" th:href="@{/egovBoardList.do}">목록으로 이동</a>
+    </div>
+</main>
+
+<th:block th:replace="~{fragments/layout :: footer}"></th:block>
+</body>
+</html>

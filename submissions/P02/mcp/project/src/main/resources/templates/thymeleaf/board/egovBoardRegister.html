@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <!-- CSRF meta — AJAX(fetch) 요청 헤더용. Spring Security 미사용 프로젝트에서는 렌더링되지 않는다. -->
+    <meta th:if="${_csrf != null}" name="_csrf" th:content="${_csrf.token}">
+    <meta th:if="${_csrf != null}" name="_csrf_header" th:content="${_csrf.headerName}">
+    <title th:if="${not #strings.isEmpty(boardVO.boardId)}" th:text="#{button.modify}"></title>
+    <title th:unless="${not #strings.isEmpty(boardVO.boardId)}" th:text="#{button.create}"></title>
+
+	<link rel="stylesheet" type="text/css" th:href="@{/css/component/output.css}">
+	<link rel="stylesheet" type="text/css" th:href="@{/css/egovframe.css}">
+	<script th:inline="javascript" th:src="@{/js/jquery.min.js}"></script>
+	<script th:inline="javascript" th:src="@{/js/component/ui-script.js}" defer></script>
+	<script th:inline="javascript" th:src="@{/js/egovframework/common.js}" defer></script>
+	<script th:inline="javascript" th:src="@{/js/egovframework/EgovValidation.js}" defer></script>
+
+    <script th:inline="javascript" defer>
+        function validateBoardVO(form) {
+            const rules = {
+                title: {
+                    label: [[#{title.board.title}]],
+                    rules: { required: true, maxlength: 200 }
+                },
+                content: {
+                    label: [[#{title.board.content}]],
+                    rules: { maxlength: 4000 }
+                },
+                writer: {
+                    label: [[#{title.board.writer}]],
+                    rules: { required: true, maxlength: 50 }
+                },
+            };
+            return EgovValidation.validateForm(form, rules);
+        }
+
+    	// GET 제출 전에는 CSRF hidden 필드를 disabled 처리한다 — disabled 컨트롤은
+    	// 직렬화되지 않으므로 토큰이 URL 쿼리스트링(브라우저 이력·로그)에 유출되지 않는다.
+    	function boardList() {
+            $('#csrfField').prop('disabled', true);
+            $('#detailForm').attr('method', 'get').attr('action', contextPath + '/egovBoardList.do').submit();
+        }
+
+        function boardAdd() {
+            if (confirm(/*[[#{add.confirm}]]*/ '\uB4F1\uB85D\uD558\uC2DC\uACA0\uC2B5\uB2C8\uAE4C?')) {
+                let frm = document.detailForm;
+                if (!validateBoardVO(frm)) {
+					return;
+				} else {
+					$('#csrfField').prop('disabled', false);
+					$('#detailForm').attr('method', 'post').attr('action', contextPath + '/addBoard.do').submit();
+				}
+            }
+        }
+
+        function boardUpdate() {
+            if (confirm(/*[[#{modify.confirm}]]*/ '\uC218\uC815\uD558\uC2DC\uACA0\uC2B5\uB2C8\uAE4C?')) {
+            	let frm = document.detailForm;
+                if (!validateBoardVO(frm)) {
+					return;
+				} else {
+            		$('#csrfField').prop('disabled', false);
+            		$('#detailForm').attr('method', 'post').attr('action', contextPath + '/updateBoard.do').submit();
+				}
+			}
+        }
+
+        function boardDelete() {
+            if (confirm(/*[[#{delete.confirm}]]*/ '\uC0AD\uC81C\uD558\uC2DC\uACA0\uC2B5\uB2C8\uAE4C?')) {
+                $('#csrfField').prop('disabled', false);
+                $('#detailForm').attr('method', 'post').attr('action', contextPath + '/deleteBoard.do').submit();
+            }
+        }
+
+        function boardReset() {
+            $('form').each(function() {
+                this.reset();
+            });
+        }
+
+        /**
+         * 첨부 그룹의 단일 파일을 삭제한다. 도메인 행은 유지.
+         * 삭제 성공 시 location.reload 로 현재 수정 화면을 새로고침 — 목록이 갱신되어
+         * 삭제된 파일이 자동으로 사라진다.
+         *
+         * 호출자: 각 첨부 li 의 [삭제] 버튼. data-* 속성으로 atchFileId/fileSn 전달.
+         */
+        function boardDeleteAttach(btn) {
+            if (!confirm(/*[[#{delete.confirm}]]*/ '삭제하시겠습니까?')) return;
+            const atchFileId = btn.getAttribute('data-atch-file-id');
+            const fileSn = btn.getAttribute('data-file-sn');
+            const body = 'atchFileId=' + encodeURIComponent(atchFileId) + '&fileSn=' + encodeURIComponent(fileSn);
+            const headers = { 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' };
+            // CSRF 보호 활성 시 meta 태그의 토큰을 요청 헤더로 전송 (미활성이면 meta 가 없다)
+            const csrfHeaderMeta = document.querySelector('meta[name="_csrf_header"]');
+            const csrfTokenMeta = document.querySelector('meta[name="_csrf"]');
+            if (csrfHeaderMeta && csrfTokenMeta) {
+                headers[csrfHeaderMeta.content] = csrfTokenMeta.content;
+            }
+            fetch(contextPath + '/deleteBoardAttachFile.do', {
+                method: 'POST',
+                headers: headers,
+                body: body,
+                credentials: 'same-origin'
+            }).then(function(res) {
+                if (res.ok) {
+                    location.reload();
+                } else {
+                    alert('첨부파일 삭제에 실패했습니다 (status=' + res.status + ').');
+                }
+            }).catch(function(err) {
+                alert('첨부파일 삭제 중 오류: ' + err);
+            });
+        }
+    </script>
+</head>
+
+<body>
+<div id="container" class="inner">
+
+	<h2 class="heading-large">
+	    <span th:if="${not #strings.isEmpty(boardVO.boardId)}" th:text="#{button.modify}"></span>
+	    <span th:unless="${not #strings.isEmpty(boardVO.boardId)}" th:text="#{button.create}"></span>
+	</h2>
+
+	<form id="detailForm" name="detailForm" th:object="${boardVO}" enctype="multipart/form-data">
+	<input type="hidden" th:id="searchCondition" th:name="searchCondition" th:value="${boardVO.searchCondition}" />
+	<input type="hidden" th:id="searchKeyword" th:name="searchKeyword" th:value="${boardVO.searchKeyword}" />
+	<input type="hidden" th:id="pageIndex" th:name="pageIndex" th:value="${boardVO.pageIndex}" />
+	<!-- 등록/수정/삭제가 POST submit 이므로 CSRF 토큰을 함께 전송한다.
+	     GET 제출(목록 복귀) 전에는 스크립트가 disabled 처리해 URL 유출을 막는다. -->
+	<input type="hidden" id="csrfField" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+	<!-- 첨부파일 그룹 키 (update 시 기존 값 보존). 신규 등록이면 빈 값 — Controller 에서 채번. -->
+	<input type="hidden" id="atchFileId" name="atchFileId" th:value="${boardVO.atchFileId}" />
+
+		<div class="conts-wrap">
+	        <div class="fieldset input-form">
+                <!-- idGeneration='auto' — 자동 채번. 수정 진입 시에만 readonly 로 표시. -->
+                <div class="form-group" th:if="${not #strings.isEmpty(boardVO.boardId)}">
+                    <div class="form-tit">
+                        <label for="boardId" th:text="#{title.board.boardId}"></label>
+                    </div>
+                    <div class="form-conts">
+                        <input type="text" id="boardId" name="boardId" class="krds-input" th:value="${boardVO.boardId}" th:readonly="readonly">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="form-tit">
+                        <label for="title" th:text="#{title.board.title}"> <span class="required">*</span></label>
+                    </div>
+                    <div class="form-conts">
+                        <input type="text" id="title" name="title" class="krds-input" maxlength="200" th:value="${boardVO.title}" th:placeholder="#{confirm.required.board.title}">
+                        <p class="form-hint-invalid" th:if="${#fields.hasErrors('title')}" th:errors="*{title}"></p>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="form-tit">
+                        <label for="content" th:text="#{title.board.content}"> <span class="required">*</span></label>
+                    </div>
+                    <div class="form-conts">
+                        <textarea id="content" name="content" class="krds-input" rows="6" maxlength="4000" th:text="${boardVO.content}"></textarea>
+                        <p class="form-hint-invalid" th:if="${#fields.hasErrors('content')}" th:errors="*{content}"></p>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="form-tit">
+                        <label for="writer" th:text="#{title.board.writer}"> <span class="required">*</span></label>
+                    </div>
+                    <div class="form-conts">
+                        <input type="text" id="writer" name="writer" class="krds-input" maxlength="50" th:value="${boardVO.writer}" th:placeholder="#{confirm.required.board.writer}">
+                        <p class="form-hint-invalid" th:if="${#fields.hasErrors('writer')}" th:errors="*{writer}"></p>
+                    </div>
+                </div>
+                <!-- 첨부파일 picker + 기존 그룹 목록 (eGov 표준: name="file_1", multiple) -->
+                <div class="form-group">
+                    <div class="form-tit">
+                        <label for="file_1" th:text="#{title.board.attachment}">첨부파일</label>
+                    </div>
+                    <div class="form-conts">
+                        <!-- 기존 첨부파일 목록 (수정 진입 시 Controller 가 model.attachList 로 주입) -->
+                        <ul class="attach-list" th:if="${attachList != null and not #lists.isEmpty(attachList)}" style="margin-bottom:8px; padding-left:1.2em; list-style:none;">
+                            <li th:each="f : ${attachList}" style="margin-bottom:4px;">
+                                <a th:href="@{/cmm/fms/FileDown.do(atchFileId=${f.atchFileId}, fileSn=${f.fileSn})}"
+                                   th:text="${f.orignlFileNm}">파일명</a>
+                                <span class="file-size" th:text="|(${f.fileMg} bytes)|" style="color:#666; margin-left:4px;"></span>
+                                <button type="button" class="krds-btn small danger"
+                                        style="margin-left:8px; padding:2px 8px; font-size:0.85em;"
+                                        th:attr="data-atch-file-id=${f.atchFileId},data-file-sn=${f.fileSn}"
+                                        onclick="boardDeleteAttach(this)">삭제</button>
+                            </li>
+                        </ul>
+                        <input type="file" id="file_1" name="file_1" class="krds-input" multiple>
+                        <p class="info-text" style="color:#666; font-size:0.9em; margin-top:4px;">
+                            <span>여러 파일을 한 번에 선택할 수 있습니다 (Cmd/Ctrl 키).</span>
+                            <span th:if="${attachList != null and not #lists.isEmpty(attachList)}"
+                                  th:text="#{info.board.attachment.existing}">기존 첨부파일이 있습니다. 추가 업로드 시 함께 보관됩니다.</span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+	        <div class="page-btn-wrap">
+                <div class="btn-wrap">
+	                <button type="button" class="krds-btn medium secondary" th:text="#{button.list}" th:onclick="boardList()"></button>
+	                <button type="button" class="krds-btn medium tertiary" th:text="#{button.reset}" th:onclick="boardReset()"></button>
+                </div>
+	            <div class="btn-wrap">
+					<button type="button"
+	                        class="krds-btn medium"
+	                        th:text="#{button.modify}"
+	                        th:onclick="boardUpdate()"
+	                        th:if="${not #strings.isEmpty(boardVO.boardId)}"></button>
+	                <button type="button"
+	                        class="krds-btn medium danger"
+	                        th:text="#{button.delete}"
+	                        th:onclick="boardDelete()"
+	                        th:if="${not #strings.isEmpty(boardVO.boardId)}"></button>
+	                <button type="button"
+	                        class="krds-btn medium"
+	                        th:text="#{button.create}"
+	                        th:onclick="boardAdd()"
+	                        th:unless="${not #strings.isEmpty(boardVO.boardId)}"></button>
+	            </div>
+	        </div>
+		</div>
+
+	</form>
+
+</div>
+
+</body>
+</html>

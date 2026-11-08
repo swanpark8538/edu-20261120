@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="boardDAO">
+
+    <sql id="searchCondition">
+        <where>
+            <if test="searchKeyword != null and searchKeyword != ''">
+                <choose>
+                    <when test='searchCondition == "1"'>CONTENT</when>
+                    <when test='searchCondition == "2"'>WRITER</when>
+                    <otherwise>TITLE</otherwise>
+                </choose>
+                LIKE '%' || #{escapedKeyword} || '%' ESCAPE '\'
+            </if>
+        </where>
+    </sql>
+
+    <select id="selectBoardList" parameterType="egovframework.example.board.service.BoardDefaultVO"
+            resultType="egovframework.example.board.service.BoardVO">
+        SELECT BOARD_ID, TITLE, WRITER, ATCH_FILE_ID, TO_CHAR(REG_DT, 'YYYY-MM-DD') AS REG_DATE
+          FROM BOARD
+        <include refid="searchCondition"/>
+         ORDER BY BOARD_ID DESC
+        OFFSET #{firstIndex} ROWS FETCH NEXT #{recordCountPerPage} ROWS ONLY
+    </select>
+
+    <select id="selectBoardListTotCnt" parameterType="egovframework.example.board.service.BoardDefaultVO"
+            resultType="int">
+        SELECT COUNT(*)
+          FROM BOARD
+        <include refid="searchCondition"/>
+    </select>
+
+    <select id="selectBoard" parameterType="string" resultType="egovframework.example.board.service.BoardVO">
+        SELECT BOARD_ID, TITLE, CONTENT, WRITER, ATCH_FILE_ID, TO_CHAR(REG_DT, 'YYYY-MM-DD') AS REG_DATE
+          FROM BOARD
+         WHERE BOARD_ID = #{boardId}
+    </select>
+
+    <insert id="insertBoard" parameterType="egovframework.example.board.service.BoardVO">
+        INSERT INTO BOARD (BOARD_ID, TITLE, CONTENT, WRITER, ATCH_FILE_ID)
+        VALUES (#{boardId}, #{title}, #{content}, #{writer}, #{atchFileId})
+    </insert>
+
+    <update id="updateBoard" parameterType="egovframework.example.board.service.BoardVO">
+        UPDATE BOARD
+           SET TITLE = #{title},
+               CONTENT = #{content},
+               WRITER = #{writer},
+               ATCH_FILE_ID = #{atchFileId}
+         WHERE BOARD_ID = #{boardId}
+    </update>
+
+    <delete id="deleteBoard" parameterType="string">
+        DELETE FROM BOARD WHERE BOARD_ID = #{boardId}
+    </delete>
+
+</mapper>
