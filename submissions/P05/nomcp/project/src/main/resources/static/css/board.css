@@ -1,0 +1,141 @@
+@font-face {
+    font-family: "Pretendard GOV";
+    font-weight: 400;
+    font-display: swap;
+    src: url("../krds/resources/fonts/PretendardGOV-Regular.subset.woff2") format("woff2");
+}
+
+@font-face {
+    font-family: "Pretendard GOV";
+    font-weight: 500;
+    font-display: swap;
+    src: url("../krds/resources/fonts/PretendardGOV-Medium.subset.woff2") format("woff2");
+}
+
+@font-face {
+    font-family: "Pretendard GOV";
+    font-weight: 700;
+    font-display: swap;
+    src: url("../krds/resources/fonts/PretendardGOV-Bold.subset.woff2") format("woff2");
+}
+
+.board-inner {
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 16px;
+}
+
+.board-header {
+    padding: 20px 0;
+    border-bottom: 1px solid var(--krds-light-color-divider-gray-light, #cdd1d5);
+}
+
+.board-brand {
+    font-size: 24px;
+    font-weight: 700;
+    color: inherit;
+    text-decoration: none;
+}
+
+.board-main {
+    min-height: 60vh;
+    padding-top: 32px;
+    padding-bottom: 48px;
+}
+
+.board-title {
+    margin-bottom: 24px;
+    font-size: 32px;
+    font-weight: 700;
+}
+
+.board-search {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+    margin-bottom: 24px;
+}
+
+.board-search-condition {
+    flex: 0 0 140px;
+}
+
+.board-search-keyword {
+    flex: 1 1 240px;
+}
+
+.board-search .krds-input,
+.board-search .krds-form-select {
+    width: 100%;
+}
+
+.board-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+}
+
+.board-table .col-no {
+    width: 80px;
+}
+
+.board-table .col-writer {
+    width: 160px;
+}
+
+.board-table .col-date {
+    width: 140px;
+}
+
+.board-cell-title {
+    text-align: left;
+}
+
+.board-title-link {
+    padding: 0;
+    border: 0;
+    background: none;
+    color: inherit;
+    font: inherit;
+    text-align: left;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.krds-pagination {
+    margin-top: 24px;
+}
+
+.board-textarea {
+    width: 100%;
+    min-height: 240px;
+}
+
+.board-file-input {
+    width: 100%;
+    padding-top: 10px;
+}
+
+.board-file-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.board-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: flex-end;
+    margin-top: 32px;
+}
+
+.board-footer {
+    padding: 24px 0;
+    border-top: 1px solid var(--krds-light-color-divider-gray-light, #cdd1d5);
+    font-size: 14px;
+}

@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<!--
+  Alert fragment (egov_add_attach_file_infrastructure).
+
+  사용법: 사용자 폼이 있는 화면 상단에 한 줄로 include 하세요.
+    <th:block th:replace="~{_fragments/alertMessages :: messages}"></th:block>
+
+  현재 첨부파일 advice 는 redirect 가 아니라 inline cmm/uploadError view 로 직접
+  렌더링하므로 본 fragment 가 직접적으로는 사용되지 않습니다. 다른 컨트롤러에서
+  RedirectAttributes 에 flash 로 errorMessage / successMessage / infoMessage 를 담아
+  redirect 한 후 메시지를 표시할 때 활용 가능합니다.
+
+  메시지 해석: 값이 메시지 번들 키면 lookup, 키가 없으면 값 자체를 표시 (raw fallback).
+  i18n 라벨(common.label.error 등) 은 의도적으로 hardcode 했습니다 — Thymeleaf 의
+  `#{key} ?: 'default'` 는 키 없을 때 `??key_locale??` placeholder 가 truthy 라
+  fallback 이 동작하지 않기 때문. 다국어 확장이 필요하면 메시지 번들에 키를 추가하고
+  본 fragment 의 라벨을 `${#messages.msgOrNull('common.label.error')} ?: '오류:'`
+  패턴으로 바꾸세요.
+-->
+<div th:fragment="messages"
+     th:if="${errorMessage != null or successMessage != null or infoMessage != null}"
+     style="margin: 1em 0;">
+
+	<div th:if="${errorMessage}"
+	     role="alert"
+	     style="padding: 0.75em 1em; background-color: #fff5f5; border: 1px solid #f5c2c7; border-radius: 0.25em; color: #842029;">
+		<strong style="margin-right: 0.5em;">오류:</strong>
+		<span th:text="${#messages.msgOrNull(errorMessage)} ?: ${errorMessage}">에러 메시지</span>
+	</div>
+
+	<div th:if="${successMessage}"
+	     role="status"
+	     style="padding: 0.75em 1em; background-color: #f0fdf4; border: 1px solid #86efac; border-radius: 0.25em; color: #166534;">
+		<strong style="margin-right: 0.5em;">완료:</strong>
+		<span th:text="${#messages.msgOrNull(successMessage)} ?: ${successMessage}">완료 메시지</span>
+	</div>
+
+	<div th:if="${infoMessage}"
+	     role="status"
+	     style="padding: 0.75em 1em; background-color: #eff6ff; border: 1px solid #93c5fd; border-radius: 0.25em; color: #1e40af;">
+		<strong style="margin-right: 0.5em;">안내:</strong>
+		<span th:text="${#messages.msgOrNull(infoMessage)} ?: ${infoMessage}">안내 메시지</span>
+	</div>
+
+</div>
+</body>
+</html>

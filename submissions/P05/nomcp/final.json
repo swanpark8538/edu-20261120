@@ -1,0 +1,138 @@
+{
+  "label": "P05-nomcp-final",
+  "run": "nomcp",
+  "project": "C:\\Users\\absol\\egov-mcp-lab\\P05\\nomcp\\board-app",
+  "projectExists": true,
+  "startedAt": "2026-11-08T18:29:32.588Z",
+  "finishedAt": "2026-11-08T18:29:40.948Z",
+  "score": 17,
+  "maxScore": 19,
+  "groups": {
+    "기본 동작": {
+      "pass": 2,
+      "total": 2
+    },
+    "기본 기능": {
+      "pass": 6,
+      "total": 6
+    },
+    "사용자 편의": {
+      "pass": 3,
+      "total": 3
+    },
+    "시스템 설정": {
+      "pass": 3,
+      "total": 4
+    },
+    "패키지 구성": {
+      "pass": 1,
+      "total": 1
+    },
+    "보안": {
+      "pass": 2,
+      "total": 2
+    },
+    "표준 준수율": {
+      "pass": 0,
+      "total": 1
+    }
+  },
+  "complianceRate": 86,
+  "milestones": {
+    "B1": {
+      "pass": true,
+      "detail": "",
+      "at": "2026-11-08T18:29:36.422Z"
+    },
+    "B2": {
+      "pass": true,
+      "detail": "",
+      "at": "2026-11-08T18:29:39.808Z"
+    },
+    "F1": {
+      "pass": true,
+      "detail": "",
+      "at": "2026-11-08T18:29:39.904Z"
+    },
+    "F2": {
+      "pass": true,
+      "detail": "",
+      "at": "2026-11-08T18:29:39.923Z"
+    },
+    "F3": {
+      "pass": true,
+      "detail": "",
+      "at": "2026-11-08T18:29:39.942Z"
+    },
+    "F4": {
+      "pass": true,
+      "detail": "",
+      "at": "2026-11-08T18:29:39.957Z"
+    },
+    "F5": {
+      "pass": true,
+      "detail": "",
+      "at": "2026-11-08T18:29:40.013Z"
+    },
+    "F6": {
+      "pass": true,
+      "detail": "",
+      "at": "2026-11-08T18:29:40.056Z"
+    },
+    "U1": {
+      "pass": true,
+      "detail": "1페이지 10건 + 2페이지 2건",
+      "at": "2026-11-08T18:29:40.176Z"
+    },
+    "U2": {
+      "pass": true,
+      "detail": "?searchKeyword=needle1f5ae5&searchCondition=0",
+      "at": "2026-11-08T18:29:40.189Z"
+    },
+    "U3": {
+      "pass": true,
+      "detail": "krds 자산 97개",
+      "at": "2026-11-08T18:29:40.189Z"
+    },
+    "C1": {
+      "pass": false,
+      "detail": "@Configuration 3개 (EgovConfigCommon.java, EgovConfigIdGeneration.java, EgovConfigSecurity.java) — 누락: SqlSessionFactory, TransactionManager",
+      "at": "2026-11-08T18:29:40.189Z"
+    },
+    "C2": {
+      "pass": true,
+      "detail": "EgovBoardServiceImpl.java 에 @Transactional",
+      "at": "2026-11-08T18:29:40.189Z"
+    },
+    "C3": {
+      "pass": true,
+      "detail": "EgovBoardServiceImpl.java 에서 EgovIdGnrService 사용",
+      "at": "2026-11-08T18:29:40.194Z"
+    },
+    "C4": {
+      "pass": true,
+      "detail": "",
+      "at": "2026-11-08T18:29:40.264Z"
+    },
+    "P1": {
+      "pass": true,
+      "detail": "루트 egovframework.example · Board board · 첨부 cmmn.file.service, cmmn.file.service.impl, cmmn.file.web · 설정 cmmn.config",
+      "at": "2026-11-08T18:29:40.264Z"
+    },
+    "S1": {
+      "pass": true,
+      "detail": "",
+      "at": "2026-11-08T18:29:40.368Z"
+    },
+    "S2": {
+      "pass": true,
+      "detail": "",
+      "at": "2026-11-08T18:29:40.415Z"
+    },
+    "R1": {
+      "pass": false,
+      "detail": "적용률 86% (검사 7개, Board 계층 3개) — 위반 1건: EgovConfigMapper.java(missing @Mapper)",
+      "at": "2026-11-08T18:29:40.947Z"
+    }
+  }
+}

@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" th:with="isModify=${registerFlag == 'modify'}">
+<head th:replace="~{fragments/layout :: head(${registerFlag == 'modify'} ? '수정' : '등록')}"></head>
+<body>
+<th:block th:replace="~{fragments/layout :: header}"></th:block>
+<main id="container" class="board-inner board-main">
+    <h1 class="board-title" th:text="${isModify} ? '게시물 수정' : '게시물 등록'">게시물 등록</h1>
+
+    <form id="boardForm" method="post" enctype="multipart/form-data" th:object="${boardVO}"
+          th:action="${isModify} ? @{/updateBoard.do} : @{/addBoard.do}">
+        <th:block th:if="${isModify}">
+            <input type="hidden" name="boardId" th:value="*{boardId}">
+            <input type="hidden" name="atchFileId" th:value="*{atchFileId}">
+        </th:block>
+
+        <div class="fieldset">
+            <div class="form-group">
+                <div class="form-tit"><label for="title">제목 (필수)</label></div>
+                <div th:class="${#fields.hasErrors('title')} ? 'form-conts is-error' : 'form-conts'">
+                    <input type="text" class="krds-input" th:field="*{title}" maxlength="200" required>
+                </div>
+                <p class="form-hint-invalid" th:if="${#fields.hasErrors('title')}" th:errors="*{title}">오류</p>
+            </div>
+
+            <div class="form-group">
+                <div class="form-tit"><label for="content">내용</label></div>
+                <div th:class="${#fields.hasErrors('content')} ? 'form-conts is-error' : 'form-conts'">
+                    <div class="textarea-wrap">
+                        <textarea class="krds-input board-textarea" th:field="*{content}" maxlength="4000"></textarea>
+                    </div>
+                </div>
+                <p class="form-hint-invalid" th:if="${#fields.hasErrors('content')}" th:errors="*{content}">오류</p>
+            </div>
+
+            <div class="form-group">
+                <div class="form-tit"><label for="writer">작성자 (필수)</label></div>
+                <div th:class="${#fields.hasErrors('writer')} ? 'form-conts is-error' : 'form-conts'">
+                    <input type="text" class="krds-input" th:field="*{writer}" maxlength="50" required>
+                </div>
+                <p class="form-hint-invalid" th:if="${#fields.hasErrors('writer')}" th:errors="*{writer}">오류</p>
+            </div>
+
+            <div class="form-group" th:if="${isModify}">
+                <div class="form-tit"><span>첨부 목록</span></div>
+                <div class="form-conts">
+                    <ul class="board-file-list" th:unless="${#lists.isEmpty(fileList)}">
+                        <li th:each="file : ${fileList}">
+                            <a class="krds-btn small text"
+                               th:href="@{/fileDown.do(atchFileId=${file.atchFileId},fileSn=${file.fileSn})}">
+                                <span th:text="${file.orignlFileNm}">파일</span>
+                                <span th:text="'[' + ${file.fileSizeKb} + 'KB]'">[1KB]</span>
+                                <i class="svg-icon ico-down"></i>
+                            </a>
+                        </li>
+                    </ul>
+                    <p th:if="${#lists.isEmpty(fileList)}">첨부파일이 없습니다.</p>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div class="form-tit"><label for="file_1" th:text="${isModify} ? '첨부 추가' : '파일 첨부'">파일 첨부</label></div>
+                <div class="form-conts">
+                    <input type="file" id="file_1" name="file_1" class="krds-input board-file-input" multiple>
+                </div>
+                <p class="form-hint">파일당 10MB, 한 번에 10개까지 올릴 수 있습니다. 문서, 이미지, zip 형식만 허용됩니다.</p>
+            </div>
+        </div>
+    </form>
+
+    <div class="board-actions">
+        <a class="krds-btn medium secondary" th:href="@{/egovBoardList.do}">목록</a>
+        <form th:if="${isModify}" method="post" th:action="@{/deleteBoard.do}" data-confirm="이 게시물과 첨부파일을 삭제할까요?">
+            <input type="hidden" name="boardId" th:value="${boardVO.boardId}">
+            <button type="submit" class="krds-btn medium tertiary">삭제</button>
+        </form>
+        <button type="submit" form="boardForm" class="krds-btn medium primary" th:text="${isModify} ? '수정' : '등록'">등록</button>
+    </div>
+</main>
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>

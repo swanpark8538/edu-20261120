@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <!-- CSRF meta — AJAX(fetch) 요청 헤더용. Spring Security 미사용 프로젝트에서는 렌더링되지 않는다. -->
+    <meta th:if="${_csrf != null}" name="_csrf" th:content="${_csrf.token}">
+    <meta th:if="${_csrf != null}" name="_csrf_header" th:content="${_csrf.headerName}">
+    <title th:if="${not #strings.isEmpty(boardVO.boardId)}" th:text="|Board #{button.modify}|"></title>
+    <title th:unless="${not #strings.isEmpty(boardVO.boardId)}" th:text="|Board #{button.create}|"></title>
+
+	<link rel="stylesheet" type="text/css" th:href="@{/css/component/output.css}">
+	<link rel="stylesheet" type="text/css" th:href="@{/css/egovframe.css}">
+	<script th:inline="javascript" th:src="@{/js/jquery.min.js}"></script>
+	<script th:inline="javascript" th:src="@{/js/component/ui-script.js}" defer></script>
+	<script th:inline="javascript" th:src="@{/js/egovframework/common.js}" defer></script>
+	<script th:inline="javascript" th:src="@{/js/egovframework/EgovValidation.js}" defer></script>
+
+    <script th:inline="javascript" defer>
+        function validateBoardVO(form) {
+            const rules = {
+                title: {
+                    label: [[#{title.board.title}]],
+                    rules: { required: true, maxlength: 200 }
+                },
+                content: {
+                    label: [[#{title.board.content}]],
+                    rules: { maxlength: 4000 }
+                },
+                writer: {
+                    label: [[#{title.board.writer}]],
+                    rules: { required: true, maxlength: 50 }
+                },
+            };
+            return EgovValidation.validateForm(form, rules);
+        }
+
+    	// 목록 복귀는 검색 조건만 쿼리스트링으로 넘긴다 — 폼 전체를 GET 제출하면
+    	// CSRF 토큰과 입력 내용이 URL(브라우저 이력·로그)에 남고 긴 본문은 URL 한도를 넘는다.
+    	function boardList() {
+            location.href = contextPath + '/egovBoardList.do?' + $.param({
+                searchCondition: $('#searchCondition').val(),
+                searchKeyword: $('#searchKeyword').val(),
+                pageIndex: $('#pageIndex').val()
+            });
+        }
+
+        function boardAdd() {
+            if (confirm(/*[[#{add.confirm}]]*/ '\uB4F1\uB85D\uD558\uC2DC\uACA0\uC2B5\uB2C8\uAE4C?')) {
+                let frm = document.detailForm;
+                if (!validateBoardVO(frm)) {
+					return;
+				} else {
+					$('#csrfField').prop('disabled', false);
+					$('#detailForm').attr('method', 'post').attr('action', contextPath + '/addBoard.do').submit();
+				}
+            }
+        }
+
+        function boardUpdate() {
+            if (confirm(/*[[#{modify.confirm}]]*/ '\uC218\uC815\uD558\uC2DC\uACA0\uC2B5\uB2C8\uAE4C?')) {
+            	let frm = document.detailForm;
+                if (!validateBoardVO(frm)) {
+					return;
+				} else {
+            		$('#csrfField').prop('disabled', false);
+            		$('#detailForm').attr('method', 'post').attr('action', contextPath + '/updateBoard.do').submit();
+				}
+			}
+        }
+
+        function boardDelete() {
+            if (confirm(/*[[#{delete.confirm}]]*/ '\uC0AD\uC81C\uD558\uC2DC\uACA0\uC2B5\uB2C8\uAE4C?')) {
+                $('#csrfField').prop('disabled', false);
+                $('#detailForm').attr('method', 'post').attr('enctype', 'application/x-www-form-urlencoded').attr('action', contextPath + '/deleteBoard.do').submit();
+            }
+        }
+
+        function boardReset() {
+            $('form').each(function() {
+                this.reset();
+            });
+            renderSelectedFiles();
+        }
+
+        // 선택한 파일 이름을 표시한다 (KRDS 파일 업로드는 input 을 시각적으로 숨긴다).
+        function renderSelectedFiles() {
+            const list = document.getElementById('selectedFiles');
+            list.replaceChildren();
+            Array.from(document.getElementById('file_1').files).forEach(function(file) {
+                const item = document.createElement('li');
+                item.textContent = file.name;
+                list.appendChild(item);
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('file_1').addEventListener('change', renderSelectedFiles);
+        });
+    </script>
+</head>
+
+<body>
+<div id="container" class="inner">
+
+	<h2 class="heading-large">
+	    <span th:if="${not #strings.isEmpty(boardVO.boardId)}" th:text="#{button.modify}"></span>
+	    <span th:unless="${not #strings.isEmpty(boardVO.boardId)}" th:text="#{button.create}"></span>
+	</h2>
+
+	<form id="detailForm" name="detailForm" enctype="multipart/form-data" th:object="${boardVO}">
+	<input type="hidden" th:id="searchCondition" th:name="searchCondition" th:value="${boardVO.searchCondition}" />
+	<input type="hidden" th:id="searchKeyword" th:name="searchKeyword" th:value="${boardVO.searchKeyword}" />
+	<input type="hidden" th:id="pageIndex" th:name="pageIndex" th:value="${boardVO.pageIndex}" />
+	<input type="hidden" id="atchFileId" name="atchFileId" th:if="${not #strings.isEmpty(boardVO.boardId)}" th:value="${boardVO.atchFileId}" />
+	<!-- 등록/수정/삭제가 POST submit 이므로 CSRF 토큰을 함께 전송한다.
+	     GET 제출(목록 복귀) 전에는 스크립트가 disabled 처리해 URL 유출을 막는다. -->
+	<input type="hidden" id="csrfField" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+
+		<div class="conts-wrap">
+	        <div class="fieldset input-form">
+                <!-- idGeneration='auto' — 자동 채번. 수정 진입 시에만 readonly 로 표시. -->
+                <div class="form-group" th:if="${not #strings.isEmpty(boardVO.boardId)}">
+                    <div class="form-tit">
+                        <label for="boardId" th:text="#{title.board.boardId}"></label>
+                    </div>
+                    <div class="form-conts">
+                        <input type="text" id="boardId" name="boardId" class="krds-input" th:value="${boardVO.boardId}" th:readonly="readonly">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="form-tit">
+                        <label for="title" th:text="#{title.board.title}"> <span class="required">*</span></label>
+                    </div>
+                    <div class="form-conts">
+                        <input type="text" id="title" name="title" class="krds-input" maxlength="200" th:value="${boardVO.title}" th:placeholder="#{confirm.required.board.title}">
+                        <p class="form-hint-invalid" th:if="${#fields.hasErrors('title')}" th:errors="*{title}"></p>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="form-tit">
+                        <label for="content" th:text="#{title.board.content}"> <span class="required">*</span></label>
+                    </div>
+                    <div class="form-conts">
+                        <textarea id="content" name="content" class="krds-input" rows="6" maxlength="4000" th:text="${boardVO.content}" th:placeholder="#{input.input}"></textarea>
+                        <p class="form-hint-invalid" th:if="${#fields.hasErrors('content')}" th:errors="*{content}"></p>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="form-tit">
+                        <label for="writer" th:text="#{title.board.writer}"> <span class="required">*</span></label>
+                    </div>
+                    <div class="form-conts">
+                        <input type="text" id="writer" name="writer" class="krds-input" maxlength="50" th:value="${boardVO.writer}" th:placeholder="#{confirm.required.board.writer}">
+                        <p class="form-hint-invalid" th:if="${#fields.hasErrors('writer')}" th:errors="*{writer}"></p>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="form-tit">
+                        <label for="file_1" th:text="#{title.board.atchFile}"></label>
+                    </div>
+                    <div class="form-conts">
+                        <div class="krds-file-upload">
+                            <div class="file-upload">
+                                <p class="txt" th:text="#{file.select.guide}"></p>
+                                <button type="button" class="krds-btn medium tertiary" th:text="#{file.select.button}"></button>
+                                <input type="file" id="file_1" name="file_1" multiple>
+                            </div>
+                            <ul id="selectedFiles"></ul>
+                            <div class="file-list" th:unless="${#lists.isEmpty(attachList)}">
+                                <ul class="upload-list">
+                                    <li th:each="file : ${attachList}">
+                                        <div class="file-info">
+                                            <div>
+                                                <span class="name" th:text="${file.orignlFileNm}"></span>
+                                            </div>
+                                        </div>
+                                        <a class="krds-btn small tertiary"
+                                           th:href="@{/cmm/fms/FileDown.do(atchFileId=${file.atchFileId},fileSn=${file.fileSn})}"
+                                           th:text="#{file.download}"></a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+	        <div class="page-btn-wrap">
+                <div class="btn-wrap">
+	                <button type="button" class="krds-btn medium secondary" th:text="#{button.list}" th:onclick="boardList()"></button>
+	                <button type="button" class="krds-btn medium tertiary" th:text="#{button.reset}" th:onclick="boardReset()"></button>
+                </div>
+	            <div class="btn-wrap">
+					<button type="button"
+	                        class="krds-btn medium"
+	                        th:text="#{button.modify}"
+	                        th:onclick="boardUpdate()"
+	                        th:if="${not #strings.isEmpty(boardVO.boardId)}"></button>
+	                <button type="button"
+	                        class="krds-btn medium danger"
+	                        th:text="#{button.delete}"
+	                        th:onclick="boardDelete()"
+	                        th:if="${not #strings.isEmpty(boardVO.boardId)}"></button>
+	                <button type="button"
+	                        class="krds-btn medium"
+	                        th:text="#{button.create}"
+	                        th:onclick="boardAdd()"
+	                        th:unless="${not #strings.isEmpty(boardVO.boardId)}"></button>
+	            </div>
+	        </div>
+		</div>
+
+	</form>
+
+</div>
+
+</body>
+</html>

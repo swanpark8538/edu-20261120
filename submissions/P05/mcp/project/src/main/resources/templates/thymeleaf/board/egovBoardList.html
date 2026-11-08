@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<!-- CSRF meta — AJAX 요청 헤더용. Spring Security 미사용 프로젝트에서는 렌더링되지 않는다. -->
+	<meta th:if="${_csrf != null}" name="_csrf" th:content="${_csrf.token}">
+	<meta th:if="${_csrf != null}" name="_csrf_header" th:content="${_csrf.headerName}">
+	<title th:text="#{title.board.sample}"></title>
+
+	<link rel="stylesheet" type="text/css" th:href="@{/css/component/output.css}"/>
+	<link rel="stylesheet" type="text/css" th:href="@{/css/egovframe.css}"/>
+	<script th:inline="javascript" th:src="@{/js/jquery.min.js}"></script>
+	<script th:inline="javascript" th:src="@{/js/egovframework/common.js}" defer></script>
+	<script th:inline="javascript" defer>
+		// GET \uC81C\uCD9C \uC804\uC5D0\uB294 CSRF hidden \uD544\uB4DC\uB97C disabled \uCC98\uB9AC\uD55C\uB2E4 \u2014 disabled \uCEE8\uD2B8\uB864\uC740
+		// \uC9C1\uB82C\uD654\uB418\uC9C0 \uC54A\uC73C\uBBC0\uB85C \uD1A0\uD070\uC774 URL \uCFFC\uB9AC\uC2A4\uD2B8\uB9C1(\uBE0C\uB77C\uC6B0\uC800 \uC774\uB825\u00B7\uB85C\uADF8)\uC5D0 \uC720\uCD9C\uB418\uC9C0 \uC54A\uB294\uB2E4.
+		function boardSearch() {
+            if (notNullCheck($('#searchKeyword').val())) {
+				$('#pageIndex').val(1);
+				$('#csrfField').prop('disabled', true);
+				$('#listForm').attr('method', 'get').attr('action', contextPath + '/egovBoardList.do').submit();
+            } else {
+            	alert(/*[[#{search.error}]]*/'\uAC80\uC0C9\uC5B4\uB97C \uC785\uB825\uD574\uC8FC\uC138\uC694.');
+            }
+		}
+
+		function boardPagination(pageIndex) {
+        	$('#pageIndex').val(pageIndex);
+        	$('#csrfField').prop('disabled', true);
+        	$('#listForm').attr('method', 'get').attr('action', contextPath + '/egovBoardList.do').submit();
+        }
+
+        function boardCreate() {
+        	$('#csrfField').prop('disabled', false);
+        	$('#listForm').attr('method', 'post').attr('action', contextPath + '/addBoardView.do').submit();
+        }
+
+        function boardDetail(boardId) {
+            $('#boardId').val(boardId);
+            $('#csrfField').prop('disabled', false);
+            $('#listForm').attr('method', 'post').attr('action', contextPath + '/updateBoardView.do').submit();
+        }
+    </script>
+</head>
+
+<body>
+<div id="container" class="inner">
+
+	<h2 class="heading-large" th:text="#{list.board}"></h2>
+
+	<!-- @egov:nav-include — egov_add_entity 가 fragment 갱신 시 자동 인식하는 마커. 사용자가 옮기지 마세요. -->
+	<div th:replace="~{_fragments/nav :: links}"></div>
+
+	<div id="content_pop">
+		<form id="listForm" th:object="${boardVO}">
+			<input type="hidden" th:id="boardId" th:name="boardId" />
+			<input type="hidden" th:id="pageIndex" th:name="pageIndex" th:value="${boardVO.pageIndex}" />
+			<!-- 등록/상세 이동이 POST submit 이므로 CSRF 토큰을 함께 전송한다.
+			     GET 제출(검색·페이지네이션) 전에는 스크립트가 disabled 처리해 URL 유출을 막는다. -->
+			<input type="hidden" id="csrfField" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+
+			<div class="form-group">
+				<div class="search-wrap">
+					<div class="search-body">
+						<div class="form-conts searchOption">
+							<select id="searchCondition" name="searchCondition" class="krds-form-select medium" th:title="#{search.choose}">
+								<option th:text="#{title.board.title}" th:value="0" th:selected="${boardVO.searchCondition} == 0"></option>
+								<option th:text="#{title.board.content}" th:value="1" th:selected="${boardVO.searchCondition} == 1"></option>
+								<option th:text="#{title.board.writer}" th:value="2" th:selected="${boardVO.searchCondition} == 2"></option>
+							</select>
+						</div>
+						<div class="form-conts btn-ico-wrap searchKeyword">
+							<input type="text" id="searchKeyword" name="searchKeyword" th:value="${boardVO.searchKeyword}" class="krds-input medium" th:placeholder="#{search.keyword}">
+							<button type="button" class="krds-btn medium icon" th:onclick="boardSearch()">
+								<span class="sr-only" th:text="#{button.search}"></span>
+								<i class="svg-icon ico-sch"></i>
+							</button>
+						</div>
+					</div>
+					<div class="page-btn-wrap">
+						<button type="button" class="krds-btn medium" th:text="#{button.create}" th:onclick="boardCreate()"></button>
+					</div>
+				</div>
+			</div>
+		</form>
+
+		<div class="krds-table-wrap">
+			<table class="tbl col data">
+				<colgroup>
+					<col style="width: 10%;">
+					<col>
+					<col>
+					<col>
+					<col>
+				</colgroup>
+				<thead>
+					<tr>
+						<th scope="col" class="text-center">No</th>
+						<th scope="col" class="text-center"><span th:text="#{title.board.boardId}"></span></th>
+						<th scope="col" class="text-center"><span th:text="#{title.board.title}"></span></th>
+						<th scope="col" class="text-center"><span th:text="#{title.board.content}"></span></th>
+						<th scope="col" class="text-center"><span th:text="#{title.board.writer}"></span></th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr th:each="result, iterStat : ${resultList}">
+						<td class="text-center" th:text="${paginationInfo.totalRecordCount + 1 - ((boardVO.pageIndex - 1) * boardVO.pageSize + iterStat.count)}"></td>
+						<td class="text-center">
+							<a href="#" th:onclick="boardDetail([[${result.boardId}]])" th:text="${result.boardId}"></a>
+						</td>
+						<td class="text-center" th:text="${result.title}"></td>
+						<td class="text-center" th:text="${result.content}"></td>
+						<td class="text-center" th:text="${result.writer}"></td>
+					</tr>
+					<tr th:if="${resultList == null or resultList.isEmpty()}">
+						<td class="text-center" colspan="5" th:text="#{info.nodata.msg}"></td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+
+		<!--
+			th:utext 사용 근거 (XSS safe — verified, not assumed):
+
+			1) org.egovframe.rte.ptl.mvc.tags.ui.pagination.PaginationInfo 는 int 9개만 필드로 가짐
+			   (currentPageNo/recordCountPerPage/pageSize/totalRecordCount/totalPageCount/
+			    firstPageNoOnPageList/lastPageNoOnPageList/firstRecordIndex/lastRecordIndex).
+			   String 필드 0개, setSearchKeyword 없음. 사용자 입력이 들어갈 수 있는 구조 자체가 아니다.
+			2) AbstractPaginationRenderer.renderPagination(...) 는 paginationInfo 에서 int getter
+			   만 호출하고 Integer.toString(int) 로 변환. 임의 문자열이 흘러나올 경로 없음.
+			3) jsFunction 인자는 생성 시점에 ^[A-Z][a-zA-Z0-9]*$ 로 검증된 식별자 리터럴.
+			4) label 템플릿(이전/다음 등)은 EgovKrdsPaginationRenderer 의 하드코드 + 우리 message
+			   bundle 만 사용 — 둘 다 개발자 통제.
+
+			셀(<td>) 값은 모두 th:text 로 escape 되어 있어 사용자/DB 데이터는 utext 경로를 통과하지 않는다.
+		-->
+		<div id="paging" class="krds-pagination w-page" th:utext="${#egovKrdsPaginationRenderer.renderPagination(paginationInfo, 'boardPagination')}"></div>
+
+	</div>
+
+</div>
+
+</body>
+</html>

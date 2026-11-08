@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="fileDAO">
+
+    <select id="selectNextFileSn" parameterType="string" resultType="int">
+        SELECT COALESCE(MAX(FILE_SN), 0) + 1
+          FROM ATTACH_FILE
+         WHERE ATCH_FILE_ID = #{atchFileId}
+    </select>
+
+    <insert id="insertFile" parameterType="egovframework.example.cmmn.file.service.FileVO">
+        INSERT INTO ATTACH_FILE (ATCH_FILE_ID, FILE_SN, ORIGNL_FILE_NM, STRE_FILE_NM, FILE_SIZE)
+        VALUES (#{atchFileId}, #{fileSn}, #{orignlFileNm}, #{streFileNm}, #{fileSize})
+    </insert>
+
+    <select id="selectFileList" parameterType="string"
+            resultType="egovframework.example.cmmn.file.service.FileVO">
+        SELECT ATCH_FILE_ID, FILE_SN, ORIGNL_FILE_NM, STRE_FILE_NM, FILE_SIZE
+          FROM ATTACH_FILE
+         WHERE ATCH_FILE_ID = #{atchFileId}
+         ORDER BY FILE_SN
+    </select>
+
+    <select id="selectFile" parameterType="egovframework.example.cmmn.file.service.FileVO"
+            resultType="egovframework.example.cmmn.file.service.FileVO">
+        SELECT ATCH_FILE_ID, FILE_SN, ORIGNL_FILE_NM, STRE_FILE_NM, FILE_SIZE
+          FROM ATTACH_FILE
+         WHERE ATCH_FILE_ID = #{atchFileId}
+           AND FILE_SN = #{fileSn}
+    </select>
+
+    <delete id="deleteFiles" parameterType="string">
+        DELETE FROM ATTACH_FILE WHERE ATCH_FILE_ID = #{atchFileId}
+    </delete>
+</mapper>
