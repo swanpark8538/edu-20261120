@@ -66,7 +66,10 @@
 ## 종료 후 수집·집계
 
 1. `bash scripts/gather-submissions.sh` → `submissions/<ID>/` 수집
-2. `docs/record-sheet.csv` 채움 (ID, 도구, 모델, 순서, 두 실행 시작 시각, 사전 설문의 경력·숙련도, 메모). 예시 2행은 지운다
+2. `docs/record-sheet.csv` 채움 (ID, 도구, 모델, 순서, 두 실행 시작 시각, 사전 설문의 경력·숙련도, 메모). 저장소의 시트는 머리글만 있다. 한 행의 예:
+   ```
+   P01,claude,opus-5.5-medium,mcp-first,2026-11-20 15:05,2026-11-20 15:30,3,중,
+   ```
 3. `npm run aggregate` → `submissions/report.md` (실행별 요약, 같은 사람의 쌍 비교, 도달 곡선, 순서 효과, 도구별)
 4. `npm run dispersion` → `submissions/dispersion.md` (산출물 편차 분석). 산출물 사본을 클래스·어노테이션·프레임워크 import·의존성·리소스·URL 매핑·토큰 5-gram 의 7개 집합으로 표현해 자카드 거리를 구하고,
    - 그룹 분산도(그룹 안 평균 쌍별 거리)를 mcp·nomcp 로 비교한다. 유의성은 참가자 단위로 두 실행의 라벨을 뒤바꾸는 순열 검정으로 본다.
