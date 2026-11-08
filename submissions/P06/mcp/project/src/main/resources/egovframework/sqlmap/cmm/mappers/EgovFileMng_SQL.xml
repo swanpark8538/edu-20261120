@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--
+  첨부파일 메타 SQL — eGovFrame v5.0 (@EgovMapper 인터페이스 스타일)
+  namespace = FileManageMapper 인터페이스의 FQN; <select id> = 메서드명 1:1.
+
+  방언 차이:
+  - 마스터 INSERT 의 현재시각: MySQL/MariaDB SYSDATE() / Oracle SYSDATE / PostgreSQL CURRENT_TIMESTAMP
+    여기서는 MySQL 호환 SYSDATE() 를 기본값으로 두고, Oracle/Tibero 배포 시 별도 SQL 파일로 분기.
+  - LIMIT/OFFSET 도 MySQL 문법 — Oracle 변형은 별도 *_oracle.xml 로 분기 (Phase B).
+-->
+<mapper namespace="egovframework.example.cmm.service.impl.FileManageMapper">
+
+	<resultMap id="fileList" type="egovframework.example.cmm.service.FileVO">
+		<result property="atchFileId"    column="ATCH_FILE_ID"/>
+		<result property="fileCn"        column="FILE_CN"/>
+		<result property="fileExtsn"     column="FILE_EXTSN"/>
+		<result property="fileMg"        column="FILE_SIZE"/>
+		<result property="fileSn"        column="FILE_SN"/>
+		<result property="fileStreCours" column="FILE_STRE_COURS"/>
+		<result property="orignlFileNm"  column="ORIGNL_FILE_NM"/>
+		<result property="streFileNm"    column="STRE_FILE_NM"/>
+		<result property="creatDt"       column="CREAT_DT"/>
+	</resultMap>
+
+	<resultMap id="fileDetail" type="egovframework.example.cmm.service.FileVO">
+		<result property="atchFileId"    column="ATCH_FILE_ID"/>
+		<result property="fileCn"        column="FILE_CN"/>
+		<result property="fileExtsn"     column="FILE_EXTSN"/>
+		<result property="fileMg"        column="FILE_SIZE"/>
+		<result property="fileSn"        column="FILE_SN"/>
+		<result property="fileStreCours" column="FILE_STRE_COURS"/>
+		<result property="orignlFileNm"  column="ORIGNL_FILE_NM"/>
+		<result property="streFileNm"    column="STRE_FILE_NM"/>
+	</resultMap>
+
+	<select id="selectFileList" parameterType="egovframework.example.cmm.service.FileVO" resultMap="fileList">
+		SELECT a.ATCH_FILE_ID, b.FILE_CN, b.FILE_SN, b.FILE_STRE_COURS, b.STRE_FILE_NM,
+		       b.FILE_EXTSN, b.ORIGNL_FILE_NM, b.FILE_SIZE, a.CREAT_DT
+		  FROM COMTNFILE a, COMTNFILEDETAIL b
+		 WHERE a.ATCH_FILE_ID = #{atchFileId}
+		   AND a.ATCH_FILE_ID = b.ATCH_FILE_ID
+		   AND a.USE_AT = 'Y'
+		 ORDER BY b.FILE_SN
+	</select>
+
+	<insert id="insertFileMaster" parameterType="egovframework.example.cmm.service.FileVO">
+		INSERT INTO COMTNFILE (ATCH_FILE_ID, CREAT_DT, USE_AT)
+		VALUES (#{atchFileId}, SYSDATE(), 'Y')
+	</insert>
+
+	<insert id="insertFileDetail" parameterType="egovframework.example.cmm.service.FileVO">
+		INSERT INTO COMTNFILEDETAIL
+		  (ATCH_FILE_ID, FILE_SN, FILE_STRE_COURS, STRE_FILE_NM,
+		   ORIGNL_FILE_NM, FILE_EXTSN, FILE_SIZE, FILE_CN)
+		VALUES
+		  (#{atchFileId}, #{fileSn}, #{fileStreCours}, #{streFileNm},
+		   #{orignlFileNm}, #{fileExtsn}, #{fileMg}, #{fileCn})
+	</insert>
+
+	<delete id="deleteFileDetail" parameterType="egovframework.example.cmm.service.FileVO">
+		DELETE FROM COMTNFILEDETAIL
+		 WHERE ATCH_FILE_ID = #{atchFileId}
+		   AND FILE_SN = #{fileSn}
+	</delete>
+
+	<select id="getMaxFileSN" parameterType="egovframework.example.cmm.service.FileVO" resultType="java.lang.Integer">
+		SELECT IFNULL(MAX(FILE_SN), 0) + 1 AS FILE_SN
+		  FROM COMTNFILEDETAIL
+		 WHERE ATCH_FILE_ID = #{atchFileId}
+	</select>
+
+	<select id="selectFileInf" parameterType="egovframework.example.cmm.service.FileVO" resultMap="fileDetail">
+		SELECT ATCH_FILE_ID, FILE_CN, FILE_SN, FILE_STRE_COURS, STRE_FILE_NM,
+		       FILE_EXTSN, ORIGNL_FILE_NM, FILE_SIZE
+		  FROM COMTNFILEDETAIL
+		 WHERE ATCH_FILE_ID = #{atchFileId}
+		   AND FILE_SN = #{fileSn}
+	</select>
+
+	<update id="deleteCOMTNFILE" parameterType="egovframework.example.cmm.service.FileVO">
+		UPDATE COMTNFILE
+		   SET USE_AT = 'N'
+		 WHERE ATCH_FILE_ID = #{atchFileId}
+	</update>
+
+	<select id="selectFileListByFileNm" parameterType="egovframework.example.cmm.service.FileVO" resultMap="fileList">
+		SELECT a.ATCH_FILE_ID, b.FILE_CN, b.FILE_SN, b.FILE_STRE_COURS, b.STRE_FILE_NM,
+		       b.FILE_EXTSN, b.ORIGNL_FILE_NM, b.FILE_SIZE, a.CREAT_DT
+		  FROM COMTNFILE a, COMTNFILEDETAIL b
+		 WHERE a.ATCH_FILE_ID = b.ATCH_FILE_ID
+		   AND a.USE_AT = 'Y'
+		<if test="searchCondition == 'streFileNm'">
+		   AND b.STRE_FILE_NM LIKE CONCAT('%', #{searchKeyword}, '%')
+		</if>
+		<if test="searchCondition == 'orignlFileNm'">
+		   AND b.ORIGNL_FILE_NM LIKE CONCAT('%', #{searchKeyword}, '%')
+		</if>
+		 ORDER BY a.ATCH_FILE_ID, b.FILE_SN
+		 LIMIT #{recordCountPerPage} OFFSET #{firstIndex}
+	</select>
+
+	<select id="selectFileListCntByFileNm" parameterType="egovframework.example.cmm.service.FileVO" resultType="java.lang.Integer">
+		SELECT COUNT(a.ATCH_FILE_ID)
+		  FROM COMTNFILE a, COMTNFILEDETAIL b
+		 WHERE a.ATCH_FILE_ID = b.ATCH_FILE_ID
+		   AND a.USE_AT = 'Y'
+		<if test="searchCondition == 'streFileNm'">
+		   AND b.STRE_FILE_NM LIKE CONCAT('%', #{searchKeyword}, '%')
+		</if>
+		<if test="searchCondition == 'orignlFileNm'">
+		   AND b.ORIGNL_FILE_NM LIKE CONCAT('%', #{searchKeyword}, '%')
+		</if>
+	</select>
+
+	<select id="selectImageFileList" parameterType="egovframework.example.cmm.service.FileVO" resultMap="fileList">
+		SELECT a.ATCH_FILE_ID, b.FILE_CN, b.FILE_SN, b.FILE_STRE_COURS, b.STRE_FILE_NM,
+		       b.FILE_EXTSN, b.ORIGNL_FILE_NM, b.FILE_SIZE, a.CREAT_DT
+		  FROM COMTNFILE a, COMTNFILEDETAIL b
+		 WHERE a.ATCH_FILE_ID = #{atchFileId}
+		   AND a.ATCH_FILE_ID = b.ATCH_FILE_ID
+		   AND UPPER(b.FILE_EXTSN) IN ('GIF', 'JPG', 'BMP', 'PNG')
+		   AND a.USE_AT = 'Y'
+		 ORDER BY b.FILE_SN
+	</select>
+
+</mapper>

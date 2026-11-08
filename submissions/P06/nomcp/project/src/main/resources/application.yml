@@ -1,0 +1,21 @@
+spring:
+  datasource:
+    driver-class-name: org.hsqldb.jdbc.JDBCDriver
+    url: jdbc:hsqldb:mem:testdb;DB_CLOSE_DELAY=-1;DATABASE_TO_UPPER=false
+    username: SA
+    password:
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.HSQLDialect
+        format_sql: true
+
+# Custom property used by BoardService for file storage
+Globals:
+  fileStorePath: ./filestore
+
+server:
+  port: 8080

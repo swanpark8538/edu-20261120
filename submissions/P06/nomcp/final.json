@@ -1,0 +1,138 @@
+{
+  "label": "P06-nomcp-final",
+  "run": "nomcp",
+  "project": "C:\\Users\\absol\\egov-mcp-lab\\P06\\nomcp\\board-app",
+  "projectExists": true,
+  "startedAt": "2026-11-08T18:29:36.884Z",
+  "finishedAt": "2026-11-08T18:29:39.225Z",
+  "score": 0,
+  "maxScore": 19,
+  "groups": {
+    "기본 동작": {
+      "pass": 0,
+      "total": 2
+    },
+    "기본 기능": {
+      "pass": 0,
+      "total": 6
+    },
+    "사용자 편의": {
+      "pass": 0,
+      "total": 3
+    },
+    "시스템 설정": {
+      "pass": 0,
+      "total": 4
+    },
+    "패키지 구성": {
+      "pass": 0,
+      "total": 1
+    },
+    "보안": {
+      "pass": 0,
+      "total": 2
+    },
+    "표준 준수율": {
+      "pass": 0,
+      "total": 1
+    }
+  },
+  "complianceRate": 100,
+  "milestones": {
+    "B1": {
+      "pass": false,
+      "detail": "mvn 종료 코드 1\n[ERROR] Failed to execute goal on project board-app: Could not resolve dependencies for project com.example:board-app:jar:1.0.0\r\n[ERROR] dependency: kr.co.govframe:krds:jar:1.0.0 (runtime)\r\n[ERROR] \tkr.co.govframe:krds:jar:1.0.0 was not found in https://maven.egovframe.go.kr/maven/ during a previous attempt. This failure was cached in the local repository and resolution is not reattempted until the update interval of egovframe has elapsed or updates are forced\r\n[ERROR] \tkr.co.govframe:krds:jar:1.0.0 was not found in https://repo.maven.apache.org/maven2 during a previous attempt. This failure was cached in the local repository and resolution is not reattempted until the update interval of central has elapsed or updates are forced\r\n[ERROR] -> [Help 1]\r\n[ERROR] \r\n[ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.\r\n[ERROR] Re-run Maven using the -X switch to enable full debug logging.\r\n[ERROR] \r\n[ERROR] For more information about the errors and possible solutions, please read the following articles:\r\n[ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/DependencyResolutionException",
+      "at": "2026-11-08T18:29:38.625Z"
+    },
+    "B2": {
+      "pass": false,
+      "detail": "B1 실패로 건너뜀",
+      "at": "2026-11-08T18:29:38.626Z"
+    },
+    "F1": {
+      "pass": false,
+      "detail": "B2 실패로 건너뜀",
+      "at": "2026-11-08T18:29:38.626Z"
+    },
+    "F2": {
+      "pass": false,
+      "detail": "B2 실패로 건너뜀",
+      "at": "2026-11-08T18:29:38.626Z"
+    },
+    "F3": {
+      "pass": false,
+      "detail": "B2 실패로 건너뜀",
+      "at": "2026-11-08T18:29:38.626Z"
+    },
+    "F4": {
+      "pass": false,
+      "detail": "B2 실패로 건너뜀",
+      "at": "2026-11-08T18:29:38.626Z"
+    },
+    "F5": {
+      "pass": false,
+      "detail": "B2 실패로 건너뜀",
+      "at": "2026-11-08T18:29:38.626Z"
+    },
+    "F6": {
+      "pass": false,
+      "detail": "B2 실패로 건너뜀",
+      "at": "2026-11-08T18:29:38.626Z"
+    },
+    "U1": {
+      "pass": false,
+      "detail": "B2 실패로 건너뜀",
+      "at": "2026-11-08T18:29:38.626Z"
+    },
+    "U2": {
+      "pass": false,
+      "detail": "B2 실패로 건너뜀",
+      "at": "2026-11-08T18:29:38.626Z"
+    },
+    "U3": {
+      "pass": false,
+      "detail": "B2 실패로 건너뜀; 프로젝트 리소스에 krds 자산 파일 없음",
+      "at": "2026-11-08T18:29:38.626Z"
+    },
+    "C1": {
+      "pass": false,
+      "detail": "@Configuration 클래스가 없음",
+      "at": "2026-11-08T18:29:38.627Z"
+    },
+    "C2": {
+      "pass": false,
+      "detail": "Board ServiceImpl 클래스를 찾지 못함",
+      "at": "2026-11-08T18:29:38.627Z"
+    },
+    "C3": {
+      "pass": false,
+      "detail": "Board 소스에서 EgovIdGnrService(getNextStringId) 사용 흔적 없음; B2 실패로 건너뜀",
+      "at": "2026-11-08T18:29:38.627Z"
+    },
+    "C4": {
+      "pass": false,
+      "detail": "[검증] Board 소스에 검증 어노테이션(@Valid/@NotBlank/@EgovNullCheck 등)이 없음; B2 실패로 건너뜀",
+      "at": "2026-11-08T18:29:38.627Z"
+    },
+    "P1": {
+      "pass": false,
+      "detail": "Board 도메인 전용 패키지가 없음 (계층 패키지가 루트 com.example.boardapp 바로 아래: service, web); 첨부 저장·다운로드 처리가 Board 클래스 안에 구현됨: BoardService, BoardController",
+      "at": "2026-11-08T18:29:38.627Z"
+    },
+    "S1": {
+      "pass": false,
+      "detail": "B2 실패로 건너뜀",
+      "at": "2026-11-08T18:29:38.627Z"
+    },
+    "S2": {
+      "pass": false,
+      "detail": "B2 실패로 건너뜀",
+      "at": "2026-11-08T18:29:38.627Z"
+    },
+    "R1": {
+      "pass": false,
+      "detail": "적용률 100% (검사 1개, Board 계층 1개) — Board 계층 파일 1개 (Controller/ServiceImpl/Mapper 3개 필요)",
+      "at": "2026-11-08T18:29:39.225Z"
+    }
+  }
+}

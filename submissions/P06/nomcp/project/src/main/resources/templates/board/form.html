@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <title th:text="${board != null} ? '수정' : '등록'">게시글</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/krds@1.0.0/dist/krds.min.css" />
+</head>
+<body>
+<div class="container">
+    <h1 th:text="${board != null} ? '게시글 수정' : '새 게시글'">게시글</h1>
+    <form th:action="${board != null} ? @{'/updateBoard.do'} : @{'/addBoard.do'}" method="post" enctype="multipart/form-data">
+        <div th:if="${board != null}">
+            <input type="hidden" name="boardId" th:value="${board.boardId}" />
+        </div>
+        <div class="form-group">
+            <label for="title">제목</label>
+            <input type="text" class="form-control" id="title" name="title" th:value="${board.title}" required />
+        </div>
+        <div class="form-group">
+            <label for="content">내용</label>
+            <textarea class="form-control" id="content" name="content" rows="5" required th:text="${board.content}"></textarea>
+        </div>
+        <div class="form-group">
+            <label for="writer">작성자</label>
+            <input type="text" class="form-control" id="writer" name="writer" th:value="${board.writer}" required />
+        </div>
+        <div class="form-group">
+            <label>첨부파일</label>
+            <input type="file" name="file_1" multiple class="form-control-file" />
+            <div th:if="${board != null && board.attachments.size() > 0}">
+                <p>기존 첨부파일:</p>
+                <ul>
+                    <li th:each="att : ${board.attachments}">
+                        <a th:href="@{'/attachments/' + ${att.id} + '/download'}" th:text="${att.fileName}"></a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <button type="submit" class="btn btn-primary">저장</button>
+        <a th:href="@{/egovBoardList.do}" class="btn btn-secondary">목록</a>
+    </form>
+</div>
+</body>
+</html>

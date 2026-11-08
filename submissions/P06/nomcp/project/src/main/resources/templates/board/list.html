@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <title>Board List</title>
+    <!-- KRDS CSS could be linked here if available -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/krds@1.0.0/dist/krds.min.css" />
+</head>
+<body>
+<div class="container">
+    <h1>게시판 목록</h1>
+    <form th:action="@{/addBoardView.do}" method="post">
+        <button type="submit" class="btn btn-primary">글쓰기</button>
+    </form>
+    <table class="table table-striped mt-3">
+        <thead>
+        <tr>
+            <th>제목</th>
+            <th>작성자</th>
+            <th>작성일</th>
+            <th>첨부</th>
+            <th>작업</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="board : ${boards}">
+            <td th:text="${board.title}"></td>
+            <td th:text="${board.writer}"></td>
+            <td th:text="${#temporals.format(board.createdAt, 'yyyy-MM-dd HH:mm')}"></td>
+            <td>
+                <ul>
+                    <li th:each="att : ${board.attachments}">
+                        <a th:href="@{'/attachments/' + ${att.id} + '/download'}" th:text="${att.fileName}"></a>
+                    </li>
+                </ul>
+            </td>
+            <td>
+                <form th:action="@{/updateBoardView.do}" method="post" style="display:inline">
+                    <input type="hidden" name="boardId" th:value="${board.boardId}" />
+                    <button type="submit" class="btn btn-sm btn-secondary">수정</button>
+                </form>
+                <form th:action="@{/deleteBoard.do}" method="post" style="display:inline" onsubmit="return confirm('삭제하시겠습니까?');">
+                    <input type="hidden" name="boardId" th:value="${board.boardId}" />
+                    <button type="submit" class="btn btn-sm btn-danger">삭제</button>
+                </form>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+</body>
+</html>

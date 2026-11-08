@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<!--
+  파일 업로드 오류 전용 view (egov_add_attach_file_infrastructure).
+
+  EgovFileUploadExceptionAdvice 가 MaxUploadSizeExceededException / SecurityException
+  발생 시 본 view 로 직접 렌더링한다. redirect 를 쓰지 않으므로 referer URL 의 method
+  매핑 패턴(POST-only *View.do 등)에 영향을 받지 않는다 — 어떤 도메인 컨트롤러에서도
+  안정적으로 동작.
+
+  모델 속성:
+    errorMessage : 메시지 번들 키 (또는 raw 텍스트). #messages.msgOrNull 로 해석 후 fallback.
+
+  i18n 정책:
+    UI 라벨(제목/버튼)은 한국어로 hardcode 한다. Thymeleaf 의 #{key} 는 키가 없으면
+    `??key_locale??` 문자열(truthy)을 반환해서 `?:` Elvis fallback 이 동작하지 않으므로,
+    안전한 fallback 패턴은 `${#messages.msgOrNull(...)} ?: 'default'` 뿐이다. 다국어 확장이
+    필요하면 메시지 번들에 키를 추가하고 본 view 의 hardcoded 텍스트를 msgOrNull 패턴으로
+    바꾸세요 — errorMessage 라인이 그 패턴의 reference 구현이다.
+
+  사용자 동작:
+    1) 이전 화면으로 돌아가기 (history.back). POST 폼이었던 경우 브라우저가
+       "양식 재제출" 경고를 띄울 수 있다.
+    2) 처음으로 — 어플리케이션 root("/").
+-->
+<head>
+	<meta charset="UTF-8" />
+	<title>파일 업로드 오류</title>
+</head>
+<body>
+<div style="max-width: 720px; margin: 3em auto; padding: 2em; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+
+	<h1 style="font-size: 1.5em; margin: 0 0 1em; color: #1f2937;">파일 업로드 오류</h1>
+
+	<div role="alert"
+	     style="padding: 1em 1.25em; margin-bottom: 1.5em; background-color: #fff5f5; border: 1px solid #f5c2c7; border-radius: 0.375em; color: #842029;">
+		<strong style="margin-right: 0.5em;">오류:</strong>
+		<span th:text="${#messages.msgOrNull(errorMessage)} ?: ${errorMessage}">에러 메시지</span>
+	</div>
+
+	<p style="margin: 0 0 1.5em; color: #4b5563;">이전 화면으로 돌아가서 다시 시도해 주세요.</p>
+
+	<div style="display: flex; gap: 0.5em;">
+		<button type="button" onclick="history.back()"
+		        style="padding: 0.6em 1.25em; background-color: #4a5568; color: #fff; border: 0; border-radius: 0.25em; cursor: pointer; font-size: 1em;">
+			이전 화면으로 돌아가기
+		</button>
+		<a href="/"
+		   style="padding: 0.6em 1.25em; background-color: #e5e7eb; color: #1f2937; border: 0; border-radius: 0.25em; text-decoration: none; font-size: 1em; display: inline-block;">
+			처음으로
+		</a>
+	</div>
+
+</div>
+</body>
+</html>
